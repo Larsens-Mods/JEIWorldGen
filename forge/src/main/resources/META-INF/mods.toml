@@ -1,0 +1,37 @@
+modLoader = "javafml"
+loaderVersion = "[47,)"
+#issueTrackerURL = ""
+license = "GNU GPL 3.0"
+
+[[mods]]
+modId = "jeiworldgen"
+version = "${version}"
+displayName = "JEIWorldGen"
+authors = "LarsenR"
+description = '''
+WorldGen Info Pages for JustEnoughItems (JEI)
+'''
+logoFile = "icon.png"
+displayTest = "NONE"
+
+[[dependencies.jeiworldgen]]
+modId = "forge"
+mandatory = true
+versionRange = "[47,)"
+ordering = "NONE"
+side = "BOTH"
+
+[[dependencies.jeiworldgen]]
+modId = "minecraft"
+mandatory = true
+versionRange = "[1.20.1,)"
+ordering = "NONE"
+side = "BOTH"
+
+[[dependencies.jeiworldgen]]
+modId = "jei"
+mandatory = false
+versionRange = "[15.20.0.106,)"
+ordering = "NONE"
+side = "BOTH"
+

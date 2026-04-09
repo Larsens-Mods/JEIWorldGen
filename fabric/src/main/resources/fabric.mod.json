@@ -1,0 +1,39 @@
+{
+  "schemaVersion": 1,
+  "id": "jeiworldgen",
+  "version": "${version}",
+  "name": "JEIWorldGen",
+  "description": "WorldGen Info Pages for JustEnoughItems (JEI)",
+  "authors": [
+    "LarsenR"
+  ],
+  "contact": {
+    "homepage": "https://larsensmods.de"
+  },
+  "license": "GPL-3.0",
+  "icon": "icon.png",
+  "environment": "*",
+  "entrypoints": {
+    "main": [
+      "de.larsensmods.jeiworldgen.fabric.JEIWorldGenModFabric"
+    ],
+    "client": [
+      "de.larsensmods.jeiworldgen.fabric.client.JEIWorldGenModFabricClient"
+    ],
+    "jei_mod_plugin": [
+      "de.larsensmods.jeiworldgen.jei.JEIWGPlugin"
+    ]
+  },
+  "mixins": [
+    "jeiworldgen.mixins.json"
+  ],
+  "depends": {
+    "fabricloader": ">=0.18.0",
+    "minecraft": "~1.20.1",
+    "java": ">=17",
+    "fabric-api": "*"
+  },
+  "suggests": {
+    "jei": ">=15.20.0.106"
+  }
+}
