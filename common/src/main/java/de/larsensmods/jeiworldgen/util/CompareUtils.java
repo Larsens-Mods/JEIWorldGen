@@ -4,6 +4,7 @@ import de.larsensmods.jeiworldgen.JEIWorldGenMod;
 import de.larsensmods.jeiworldgen.mixin.CountPlacementAccessor;
 import de.larsensmods.jeiworldgen.mixin.HeightRangePlacementAccessor;
 import de.larsensmods.jeiworldgen.mixin.RarityFilterAccessor;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.valueproviders.IntProvider;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.levelgen.heightproviders.*;
@@ -16,6 +17,10 @@ import java.util.Set;
 public class CompareUtils {
 
     public static boolean areItemStackSetsEqual(Set<ItemStack> set1, Set<ItemStack> set2){
+        return itemStackSetTestOneWay(set1, set2) && itemStackSetTestOneWay(set2, set1);
+    }
+
+    private static boolean itemStackSetTestOneWay(Set<ItemStack> set1, Set<ItemStack> set2){
         for(ItemStack stack1 : set1){
             boolean foundMatch = false;
             for(ItemStack stack2 : set2){
@@ -25,6 +30,20 @@ public class CompareUtils {
                 }
             }
             if(!foundMatch){
+                return false;
+            }
+        }
+        return true;
+    }
+
+    public static boolean areResourceLocationSetsEqual(Set<ResourceLocation> set1, Set<ResourceLocation> set2){
+        for(ResourceLocation rl1 : set1){
+            if(!set2.contains(rl1)) {
+                return false;
+            }
+        }
+        for (ResourceLocation rl2 : set2){
+            if(!set1.contains(rl2)) {
                 return false;
             }
         }

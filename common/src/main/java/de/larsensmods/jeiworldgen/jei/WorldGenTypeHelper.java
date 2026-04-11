@@ -4,7 +4,9 @@ import de.larsensmods.jeiworldgen.JEIWorldGenMod;
 import de.larsensmods.jeiworldgen.client.ClientDataStore;
 import de.larsensmods.jeiworldgen.client.OreGenData;
 import de.larsensmods.jeiworldgen.client.utils.RenderUtils;
+import de.larsensmods.jeiworldgen.config.ConfigManager;
 import de.larsensmods.jeiworldgen.mixin.*;
+import de.larsensmods.jeiworldgen.util.CompareUtils;
 import de.larsensmods.jeiworldgen.util.ValueHelpers;
 import mezz.jei.api.gui.builder.ITooltipBuilder;
 import mezz.jei.api.recipe.RecipeType;
@@ -154,7 +156,39 @@ public class WorldGenTypeHelper implements IRecipeCategoryExtension {
             output.add(entry);
         }
 
-        return output;
+        return ConfigManager.getConfig().combineSimilarDatasets() ? mergeSimilar(output) : output;
+    }
+
+    private static List<WorldGenTypeHelper> mergeSimilar(List<WorldGenTypeHelper> fromList){
+        List<WorldGenTypeHelper> merged = new ArrayList<>();
+
+        Set<Integer> alreadyMerged = new HashSet<>();
+
+        for(int a = 0; a < fromList.size(); a++){
+            if(alreadyMerged.contains(a)){
+                continue;
+            }
+            boolean doMerge = false;
+            WorldGenTypeHelper entryA = fromList.get(a);
+            Set<WorldGenTypeHelper> toMerge = new HashSet<>();
+            toMerge.add(entryA);
+            for(int b = 0; b < fromList.size(); b++) {
+                WorldGenTypeHelper entryB = fromList.get(b);
+
+                if (entryA.metaEquals(entryB)) {
+                    toMerge.add(entryB);
+                    alreadyMerged.add(b);
+                    doMerge = true;
+                }
+            }
+            if(doMerge){
+                merged.add(new Merged(entryA.biomes, entryA.blocks, toMerge));
+            }else{
+                merged.add(entryA);
+            }
+        }
+
+        return merged;
     }
 
     //Implementation
@@ -162,19 +196,15 @@ public class WorldGenTypeHelper implements IRecipeCategoryExtension {
     public final Set<ResourceLocation> biomes;
     public final Set<ItemStack> blocks;
 
-    private final Set<int[]> distributionDrawParams = new HashSet<>();
+    protected final Set<int[]> distributionDrawParams = new HashSet<>();
 
     public WorldGenTypeHelper(Set<ResourceLocation> biomes, Set<ItemStack> blocks){
         this.biomes = biomes;
         this.blocks = blocks;
     }
 
-    public void addDistributionCornerPoint(int height, int amount){
+    private void addDistributionCornerPoint(int height, int amount){
         this.distributionDrawParams.add(new int[]{height, amount});
-    }
-
-    public List<int[]> getDistributionDrawParams(){
-        return this.distributionDrawParams.stream().sorted(Comparator.comparingInt(o -> o[0])).toList();
     }
 
     public String getBiomeString(){
@@ -190,14 +220,18 @@ public class WorldGenTypeHelper implements IRecipeCategoryExtension {
         return info;
     }
 
+    public boolean metaEquals(WorldGenTypeHelper other){
+        return CompareUtils.areItemStackSetsEqual(this.blocks, other.blocks) && CompareUtils.areResourceLocationSetsEqual(this.biomes, other.biomes);
+    }
+
     //GUI STUFF
 
-    private static final double drawHeightMultiplier = 3.5;
+    protected static final double drawHeightMultiplier = 3.5;
 
-    private int minY = -200, maxY = 500, displayHeight = 700;
-    private double scale = 1;
+    protected int minY = -200, maxY = 500, displayHeight = 700;
+    protected double scale = 1;
 
-    private int[] drawHeights = new int[0];
+    protected int[] drawHeights = new int[0];
 
     @Override
     public void drawInfo(int recipeWidth, int recipeHeight, GuiGraphics guiGraphics, double mouseX, double mouseY) {
@@ -212,10 +246,6 @@ public class WorldGenTypeHelper implements IRecipeCategoryExtension {
         guiGraphics.pose().popPose();
 
         drawGraphNumbering(guiGraphics);
-
-        /*for(int[] point : getDistributionDrawParams()){
-            RenderUtils.drawLine(guiGraphics, (int) Math.round(fromWorldHeight(point[0])) - 1, COORDS_BASE_Y - point[1] - 1, (int) Math.round(fromWorldHeight(point[0])) + 1, COORDS_BASE_Y - point[1] + 1, 0xFF0000FF);
-        }*/
 
         for(int y = this.minY; y < this.maxY; y++){
             int drawHeight = this.drawHeights[y - this.minY];
@@ -274,7 +304,7 @@ public class WorldGenTypeHelper implements IRecipeCategoryExtension {
         return ((worldHeight - minY) / scale) + COORDS_BASE_X;
     }
 
-    private void recalcDrawMeta(){
+    protected void recalcDrawMeta(){
         int minY = Integer.MAX_VALUE;
         int maxY = Integer.MIN_VALUE;
         for(int[] point : distributionDrawParams){
@@ -300,7 +330,7 @@ public class WorldGenTypeHelper implements IRecipeCategoryExtension {
         }
     }
 
-    private int calcDrawHeightAt(int y){
+    protected int calcDrawHeightAt(int y){
         if(y < minY + 5 || y > maxY - 5){
             return 0;
         }
@@ -325,5 +355,51 @@ public class WorldGenTypeHelper implements IRecipeCategoryExtension {
             return (int) Math.round(heightAtY * drawHeightMultiplier);
         }
         return 0;
+    }
+
+    public static class Merged extends WorldGenTypeHelper {
+
+        private final Set<WorldGenTypeHelper> underlyingHelpers;
+
+        public Merged(Set<ResourceLocation> biomes, Set<ItemStack> blocks, Set<WorldGenTypeHelper> toMerge) {
+            super(biomes, blocks);
+            this.underlyingHelpers = toMerge;
+        }
+
+        @Override
+        protected void recalcDrawMeta() {
+            int minY = Integer.MAX_VALUE;
+            int maxY = Integer.MIN_VALUE;
+
+            for(WorldGenTypeHelper helper : underlyingHelpers){
+                helper.recalcDrawMeta();
+                if(helper.minY < minY){
+                    minY = helper.minY;
+                }
+                if(helper.maxY > maxY){
+                    maxY = helper.maxY;
+                }
+            }
+
+            this.minY = minY;
+            this.maxY = maxY;
+            this.displayHeight = maxY - minY;
+            this.scale = this.displayHeight / (double) COORDS_SIZE_X;
+
+            this.drawHeights = new int[this.displayHeight];
+            for(int i = 0; i < this.displayHeight; i++){
+                int y = minY + i;
+                this.drawHeights[i] = calcDrawHeightAt(y);
+            }
+        }
+
+        @Override
+        protected int calcDrawHeightAt(int y) {
+            int drawHeight = 0;
+            for(WorldGenTypeHelper helper : underlyingHelpers){
+                drawHeight += helper.calcDrawHeightAt(y);
+            }
+            return drawHeight;
+        }
     }
 }

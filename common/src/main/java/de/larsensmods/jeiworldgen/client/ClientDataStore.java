@@ -4,6 +4,6 @@ import de.larsensmods.jeiworldgen.networking.WorldGenInfo;
 
 public class ClientDataStore {
 
-    public static WorldGenInfo WG_INFO;
+    public static WorldGenInfo WG_INFO = null;
 
 }
