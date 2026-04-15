@@ -52,11 +52,11 @@ public final class JEIWorldGenModForge {
             }
         }
 
-        @SubscribeEvent
+        /*@SubscribeEvent
         public static void onEntityJoinLevel(EntityJoinLevelEvent event){
             if (event.getEntity() instanceof Player player && FMLLoader.getDist().isClient() && Minecraft.getInstance().player != null && player.getUUID().equals(Minecraft.getInstance().player.getUUID())) {
                 ClientEvents.playerJoinedWorld(player);
             }
-        }
+        }*/
     }
 }
