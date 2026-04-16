@@ -19,7 +19,7 @@ public class JEIWGPlugin implements IModPlugin {
      */
     @Override
     public @NotNull ResourceLocation getPluginUid() {
-        return new ResourceLocation(JEIWorldGenMod.MOD_ID, "world_generation_plugin");
+        return ResourceLocation.fromNamespaceAndPath(JEIWorldGenMod.MOD_ID, "world_generation_plugin");
     }
 
     @Override

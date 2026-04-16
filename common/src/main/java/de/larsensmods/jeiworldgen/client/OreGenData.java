@@ -130,37 +130,37 @@ public class OreGenData {
         public void writeTo(FriendlyByteBuf byteBuf){
             byteBuf.writeInt(targets.size());
             for(ItemStack target : targets){
-                byteBuf.writeItem(target);
+                byteBuf.writeJsonWithCodec(ItemStack.CODEC, target);
             }
             byteBuf.writeInt(size);
             if(countPlacement != null) {
                 byteBuf.writeChar('c');
-                byteBuf.writeJsonWithCodec(CountPlacement.CODEC, countPlacement);
+                byteBuf.writeJsonWithCodec(CountPlacement.CODEC.codec(), countPlacement);
             }else{
                 byteBuf.writeChar('r');
-                byteBuf.writeJsonWithCodec(RarityFilter.CODEC, rarityFilter);
+                byteBuf.writeJsonWithCodec(RarityFilter.CODEC.codec(), rarityFilter);
             }
-            byteBuf.writeJsonWithCodec(HeightRangePlacement.CODEC, heightRangePlacement);
+            byteBuf.writeJsonWithCodec(HeightRangePlacement.CODEC.codec(), heightRangePlacement);
         }
 
         public static OreData readFrom(FriendlyByteBuf byteBuf){
             int targetSize = byteBuf.readInt();
             Set<ItemStack> targets = new HashSet<>();
             for (int i = 0; i < targetSize; i++){
-                targets.add(byteBuf.readItem());
+                targets.add(byteBuf.readJsonWithCodec(ItemStack.CODEC));
             }
             int size = byteBuf.readInt();
             CountPlacement countPlacement = null;
             RarityFilter rarityFilter = null;
             char placementType = byteBuf.readChar();
             if(placementType == 'c'){
-                countPlacement = byteBuf.readJsonWithCodec(CountPlacement.CODEC);
+                countPlacement = byteBuf.readJsonWithCodec(CountPlacement.CODEC.codec());
             }else if(placementType == 'r'){
-                rarityFilter = byteBuf.readJsonWithCodec(RarityFilter.CODEC);
+                rarityFilter = byteBuf.readJsonWithCodec(RarityFilter.CODEC.codec());
             }else{
                 throw new IllegalStateException("Unknown placement type: " + placementType);
             }
-            HeightRangePlacement heightRangePlacement = byteBuf.readJsonWithCodec(HeightRangePlacement.CODEC);
+            HeightRangePlacement heightRangePlacement = byteBuf.readJsonWithCodec(HeightRangePlacement.CODEC.codec());
             return countPlacement != null
                     ? new OreData(targets, size, countPlacement, heightRangePlacement)
                     : new OreData(targets, size, rarityFilter, heightRangePlacement);

@@ -6,7 +6,6 @@ import mezz.jei.api.gui.builder.IRecipeLayoutBuilder;
 import mezz.jei.api.gui.builder.ITooltipBuilder;
 import mezz.jei.api.gui.drawable.IDrawable;
 import mezz.jei.api.gui.ingredient.IRecipeSlotsView;
-import mezz.jei.api.helpers.IGuiHelper;
 import mezz.jei.api.helpers.IJeiHelpers;
 import mezz.jei.api.recipe.IFocusGroup;
 import mezz.jei.api.recipe.RecipeType;
@@ -30,8 +29,8 @@ public class JEIWorldGenCategory implements IRecipeCategory<WorldGenTypeHelper> 
 
     public JEIWorldGenCategory(IJeiHelpers helpers) {
         this.helpers = helpers;
-        this.background = new BGDrawable(new ResourceLocation(JEIWorldGenMod.MOD_ID, "textures/gui/category_bg.png"), 156, 80);
-        this.icon = this.helpers.getGuiHelper().createDrawable(new ResourceLocation(JEIWorldGenMod.MOD_ID, "textures/gui/category_icon.png"), 0, 0, 16, 16);
+        this.background = new BGDrawable(ResourceLocation.fromNamespaceAndPath(JEIWorldGenMod.MOD_ID, "textures/gui/category_bg.png"), 156, 80);
+        this.icon = this.helpers.getGuiHelper().createDrawable(ResourceLocation.fromNamespaceAndPath(JEIWorldGenMod.MOD_ID, "textures/gui/category_icon.png"), 0, 0, 16, 16);
     }
 
     @Override
@@ -67,21 +66,19 @@ public class JEIWorldGenCategory implements IRecipeCategory<WorldGenTypeHelper> 
     }
 
     @Override
-    public @Nullable IDrawable getBackground() {
-        return this.background;
-    }
-
-    @Override
     public void draw(WorldGenTypeHelper recipe, IRecipeSlotsView recipeSlotsView, GuiGraphics guiGraphics, double mouseX, double mouseY) {
+        //Draw Background
+        this.background.draw(guiGraphics);
+
         //Draw Coords Grid
         RenderUtils.drawLine(guiGraphics, COORDS_BASE_X, COORDS_BASE_Y, COORDS_BASE_X + COORDS_SIZE_X, COORDS_BASE_Y, 0xFF444444);
         RenderUtils.drawLine(guiGraphics, COORDS_BASE_X, COORDS_BASE_Y, COORDS_BASE_X, COORDS_BASE_Y - COORDS_SIZE_Y, 0xFF444444);
 
-        recipe.drawInfo(getWidth(), getHeight(), guiGraphics, mouseX, mouseY);
+        recipe.drawInfo(recipe, getWidth(), getHeight(), guiGraphics, mouseX, mouseY);
     }
 
     @Override
     public void getTooltip(ITooltipBuilder tooltip, WorldGenTypeHelper recipe, IRecipeSlotsView recipeSlotsView, double mouseX, double mouseY) {
-        recipe.getTooltip(tooltip, mouseX, mouseY);
+        recipe.getTooltip(tooltip, recipe, mouseX, mouseY);
     }
 }

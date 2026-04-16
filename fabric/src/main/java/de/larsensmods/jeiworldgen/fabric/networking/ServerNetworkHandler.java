@@ -4,8 +4,8 @@ import de.larsensmods.jeiworldgen.JEIWorldGenMod;
 import de.larsensmods.jeiworldgen.networking.Channels;
 import de.larsensmods.jeiworldgen.networking.INetworkHandler;
 import de.larsensmods.jeiworldgen.networking.WorldGenInfo;
+import net.fabricmc.fabric.api.networking.v1.LoginPacketSender;
 import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
-import net.fabricmc.fabric.api.networking.v1.PacketSender;
 import net.fabricmc.fabric.api.networking.v1.ServerLoginNetworking;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.server.MinecraftServer;
@@ -30,7 +30,7 @@ public class ServerNetworkHandler implements INetworkHandler {
         this.worldGenInfo = worldGenInfo;
     }
 
-    public void sendWorldGenInfo(ServerLoginPacketListenerImpl handler, MinecraftServer server, PacketSender sender, ServerLoginNetworking.LoginSynchronizer synchronizer) {
+    public void sendWorldGenInfo(ServerLoginPacketListenerImpl handler, MinecraftServer server, LoginPacketSender sender, ServerLoginNetworking.LoginSynchronizer synchronizer) {
         if(worldGenInfo != null) {
             FriendlyByteBuf byteBuf = PacketByteBufs.create();
             worldGenInfo.encode(byteBuf);

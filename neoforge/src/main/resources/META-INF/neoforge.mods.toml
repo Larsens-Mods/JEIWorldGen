@@ -1,5 +1,5 @@
 modLoader = "javafml"
-loaderVersion = "[47,)"
+loaderVersion = "[4,)"
 #issueTrackerURL = ""
 license = "GNU GPL 3.0"
 
@@ -15,23 +15,25 @@ logoFile = "icon.png"
 displayTest = "NONE"
 
 [[dependencies.jeiworldgen]]
-modId = "forge"
-mandatory = true
-versionRange = "[47,)"
+modId = "neoforge"
+type = "required"
+versionRange = "[4,)"
 ordering = "NONE"
 side = "BOTH"
 
 [[dependencies.jeiworldgen]]
 modId = "minecraft"
-mandatory = true
-versionRange = "[1.20.1,)"
+type = "required"
+versionRange = "[1.21,)"
 ordering = "NONE"
 side = "BOTH"
 
 [[dependencies.jeiworldgen]]
 modId = "jei"
-mandatory = false
-versionRange = "[15.20.0.106,)"
+type = "optional"
+versionRange = "[19.25.1.326,)"
 ordering = "NONE"
-side = "BOTH"
+side = "CLIENT"
 
+[[mixins]]
+config = "jeiworldgen.mixins.json"

@@ -27,7 +27,7 @@ import static de.larsensmods.jeiworldgen.jei.JEIWorldGenCategory.COORDS_BASE_Y;
 import static de.larsensmods.jeiworldgen.jei.JEIWorldGenCategory.COORDS_SIZE_X;
 import static de.larsensmods.jeiworldgen.jei.JEIWorldGenCategory.COORDS_SIZE_Y;
 
-public class WorldGenTypeHelper implements IRecipeCategoryExtension {
+public class WorldGenTypeHelper implements IRecipeCategoryExtension<WorldGenTypeHelper> {
 
     private static final Set<ResourceLocation> NON_OVERWORLD_BIOMES = Set.of(
             Biomes.NETHER_WASTES.location(),
@@ -42,12 +42,12 @@ public class WorldGenTypeHelper implements IRecipeCategoryExtension {
             Biomes.END_BARRENS.location()
     );
 
-    public static final RecipeType<WorldGenTypeHelper> RECIPE_TYPE = new RecipeType<>(new ResourceLocation(JEIWorldGenMod.MOD_ID, "world_generation"), WorldGenTypeHelper.class);
+    public static final RecipeType<WorldGenTypeHelper> RECIPE_TYPE = new RecipeType<>(ResourceLocation.fromNamespaceAndPath(JEIWorldGenMod.MOD_ID, "world_generation"), WorldGenTypeHelper.class);
 
     public static List<WorldGenTypeHelper> buildRecipes(){
         JEIWorldGenMod.LOGGER.info("Building world gen JEI recipes");
 
-        OreGenData data = ClientDataStore.WG_INFO != null ? ClientDataStore.WG_INFO.getData() : null;
+        OreGenData data = ClientDataStore.WG_INFO != null ? ClientDataStore.WG_INFO.data() : null;
         if(data == null){
             JEIWorldGenMod.LOGGER.warn("Could not find generation data");
             return List.of();
@@ -79,7 +79,7 @@ public class WorldGenTypeHelper implements IRecipeCategoryExtension {
             Set<ResourceLocation> biomes = dataBiomes.get(i);
             JEIWorldGenMod.LOGGER.debug("Found ore gen data set for {} biomes: {}", biomes.size(), String.join(", ", biomes.stream().map(ResourceLocation::toString).toList()));
 
-            ResourceLocation sampleBiome = biomes.stream().toList().get(0);
+            ResourceLocation sampleBiome = biomes.stream().toList().getFirst();
 
             WorldGenTypeHelper entry = new WorldGenTypeHelper(biomes, oreData.getTargets());
 
@@ -208,7 +208,7 @@ public class WorldGenTypeHelper implements IRecipeCategoryExtension {
     }
 
     public String getBiomeString(){
-        return getBiomeInfo().get(0) + (biomes.size() > 1 ? " (+" + (biomes.size() - 1) + ")" : "");
+        return getBiomeInfo().getFirst() + (biomes.size() > 1 ? " (+" + (biomes.size() - 1) + ")" : "");
     }
 
     public List<String> getBiomeInfo(){
@@ -234,7 +234,7 @@ public class WorldGenTypeHelper implements IRecipeCategoryExtension {
     protected int[] drawHeights = new int[0];
 
     @Override
-    public void drawInfo(int recipeWidth, int recipeHeight, GuiGraphics guiGraphics, double mouseX, double mouseY) {
+    public void drawInfo(WorldGenTypeHelper recipe, int recipeWidth, int recipeHeight, GuiGraphics guiGraphics, double mouseX, double mouseY) {
         recalcDrawMeta();
 
         int labelX = 40, labelY = 2;
@@ -256,7 +256,7 @@ public class WorldGenTypeHelper implements IRecipeCategoryExtension {
     }
 
     @Override
-    public void getTooltip(ITooltipBuilder tooltip, double mouseX, double mouseY) {
+    public void getTooltip(ITooltipBuilder tooltip, WorldGenTypeHelper recipe, double mouseX, double mouseY) {
         if(mouseX >= COORDS_BASE_X - 1
                 && mouseX < COORDS_BASE_X + COORDS_SIZE_X
                 && mouseY >= COORDS_BASE_Y - COORDS_SIZE_Y - 1
