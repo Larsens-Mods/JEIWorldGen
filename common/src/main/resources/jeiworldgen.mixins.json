@@ -6,9 +6,18 @@
   "client": [
   ],
   "mixins": [
+    "ApplyBonusCountAccessor",
+    "CompositeEntryBaseAccessor",
     "CountPlacementAccessor",
     "HeightRangePlacementAccessor",
+    "ItemEnchantmentsPredicateAccessor",
+    "LootItemAccessor",
+    "LootPoolAccessor",
+    "LootPoolEntryContainerAccessor",
+    "LootPoolSingletonContainerAccessor",
+    "LootTableAccessor",
     "RarityFilterAccessor",
+    "SetItemCountFunctionAccessor",
     "TrapezoidHeightAccessor",
     "UniformHeightAccessor"
   ],

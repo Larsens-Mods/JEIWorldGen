@@ -4,6 +4,7 @@ import de.larsensmods.jeiworldgen.JEIWorldGenMod;
 import de.larsensmods.jeiworldgen.client.ClientDataStore;
 import de.larsensmods.jeiworldgen.events.ClientEvents;
 import de.larsensmods.jeiworldgen.networking.Channels;
+import de.larsensmods.jeiworldgen.networking.LootInfo;
 import de.larsensmods.jeiworldgen.networking.WorldGenInfo;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientEntityEvents;
@@ -22,6 +23,11 @@ public final class JEIWorldGenModFabricClient implements ClientModInitializer {
         ClientLoginNetworking.registerGlobalReceiver(Channels.BIOME_DATA_SYNC, (client, handler, buf, listenerAdder) -> {
             JEIWorldGenMod.LOGGER.info("Received data sync packet");
             ClientDataStore.WG_INFO = WorldGenInfo.decode(buf);
+            return CompletableFuture.completedFuture(PacketByteBufs.empty());
+        });
+        ClientLoginNetworking.registerGlobalReceiver(Channels.LOOT_DATA_SYNC, (client, handler, buf, callbacksConsumer) -> {
+            JEIWorldGenMod.LOGGER.info("Received loot sync packet");
+            ClientDataStore.LOOT_INFO = LootInfo.decode(buf);
             return CompletableFuture.completedFuture(PacketByteBufs.empty());
         });
 

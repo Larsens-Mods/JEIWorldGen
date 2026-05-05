@@ -26,6 +26,7 @@ public final class JEIWorldGenModFabric implements ModInitializer {
             public void onWorldLoad(MinecraftServer server, ServerLevel world) {
                 if(!loaded) {
                     world.registryAccess().registry(Registries.BIOME).ifPresent(JEIWorldGenMod::buildBiomeData);
+                    JEIWorldGenMod.buildLootData(server.reloadableRegistries());
                     loaded = true;
                 }
             }

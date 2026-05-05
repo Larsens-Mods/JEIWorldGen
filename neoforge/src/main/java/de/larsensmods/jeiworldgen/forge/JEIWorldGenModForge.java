@@ -2,9 +2,7 @@ package de.larsensmods.jeiworldgen.forge;
 
 import de.larsensmods.jeiworldgen.JEIWorldGenMod;
 import de.larsensmods.jeiworldgen.client.ClientDataStore;
-import de.larsensmods.jeiworldgen.forge.networking.ServerNetworkHandler;
-import de.larsensmods.jeiworldgen.forge.networking.WorldGenInfoPayload;
-import de.larsensmods.jeiworldgen.forge.networking.WorldGenInfoTask;
+import de.larsensmods.jeiworldgen.forge.networking.*;
 import de.larsensmods.jeiworldgen.networking.Channels;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.server.level.ServerPlayer;
@@ -38,6 +36,7 @@ public final class JEIWorldGenModForge {
         public static void onServerStarted(ServerStartedEvent event) {
             if(!loaded) {
                 event.getServer().registryAccess().registry(Registries.BIOME).ifPresent(JEIWorldGenMod::buildBiomeData);
+                JEIWorldGenMod.buildLootData(event.getServer().reloadableRegistries());
                 loaded = true;
             }
         }
@@ -65,12 +64,23 @@ public final class JEIWorldGenModForge {
                         ClientDataStore.WG_INFO = payload.info();
                     }
             );
+            registrar.configurationToClient(
+                    LootInfoPayload.TYPE,
+                    LootInfoPayload.STREAM_CODEC,
+                    (payload, context) -> {
+                        JEIWorldGenMod.LOGGER.info("Received loot sync packet");
+                        ClientDataStore.LOOT_INFO = payload.info();
+                    }
+            );
         }
 
         @SubscribeEvent
         public static void onConfigurationTaskRegister(RegisterConfigurationTasksEvent event){
             if(event.getListener().hasChannel(WorldGenInfoPayload.TYPE)) {
                 event.register(new WorldGenInfoTask(networkHandler, event.getListener()));
+            }
+            if(event.getListener().hasChannel(LootInfoPayload.TYPE)) {
+                event.register(new LootInfoTask(networkHandler, event.getListener()));
             }
         }
 
