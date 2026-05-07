@@ -3,11 +3,13 @@ package de.larsensmods.jeiworldgen.forge;
 import de.larsensmods.jeiworldgen.JEIWorldGenMod;
 import de.larsensmods.jeiworldgen.events.ClientEvents;
 import de.larsensmods.jeiworldgen.forge.networking.ServerNetworkHandler;
+import de.larsensmods.jeiworldgen.forge.util.ForgeMixinFixWrapper;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.level.storage.loot.LootTable;
 import net.minecraftforge.event.entity.EntityJoinLevelEvent;
 import net.minecraftforge.event.entity.player.PlayerEvent;
 import net.minecraftforge.event.server.ServerStartedEvent;
@@ -28,7 +30,7 @@ public final class JEIWorldGenModForge {
         ModLoadingContext.get().registerDisplayTest(new IExtensionPoint.DisplayTest(() -> NetworkConstants.IGNORESERVERONLY, (a, b) -> true));
 
         networkHandler = new ServerNetworkHandler();
-        JEIWorldGenMod.init(networkHandler);
+        JEIWorldGenMod.init(networkHandler, new ForgeMixinFixWrapper());
     }
 
     @Mod.EventBusSubscriber
@@ -40,6 +42,7 @@ public final class JEIWorldGenModForge {
         public static void onServerStarted(ServerStartedEvent event) {
             if(!loaded) {
                 event.getServer().registryAccess().registry(Registries.BIOME).ifPresent(JEIWorldGenMod::buildBiomeData);
+                JEIWorldGenMod.buildLootData(event.getServer().getLootData());
                 loaded = true;
             }
         }

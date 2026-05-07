@@ -6,10 +6,21 @@
   "client": [
   ],
   "mixins": [
+    "ApplyBonusCountAccessor",
+    "CompositeEntryBaseAccessor",
     "CountPlacementAccessor",
+    "EnchantmentPredicateAccessor",
     "HeightRangePlacementAccessor",
+    "ItemPredicateAccessor",
+    "LootItemAccessor",
+    "LootPoolAccessor",
+    "LootPoolEntryContainerAccessor",
+    "LootPoolSingletonContainerAccessor",
+    "MatchToolAccessor",
     "RarityFilterAccessor",
+    "SetItemCountFunctionAccessor",
     "TrapezoidHeightAccessor",
+    "UniformGeneratorAccessor",
     "UniformHeightAccessor"
   ],
   "injectors": {

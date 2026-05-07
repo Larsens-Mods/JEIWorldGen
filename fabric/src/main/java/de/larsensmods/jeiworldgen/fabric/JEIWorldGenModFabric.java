@@ -2,6 +2,7 @@ package de.larsensmods.jeiworldgen.fabric;
 
 import de.larsensmods.jeiworldgen.JEIWorldGenMod;
 import de.larsensmods.jeiworldgen.fabric.networking.ServerNetworkHandler;
+import de.larsensmods.jeiworldgen.fabric.util.FabricMixinFixWrapper;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerWorldEvents;
 import net.fabricmc.fabric.api.networking.v1.ServerLoginConnectionEvents;
@@ -17,7 +18,7 @@ public final class JEIWorldGenModFabric implements ModInitializer {
 
         ServerLoginConnectionEvents.QUERY_START.register(networkHandler::sendWorldGenInfo);
 
-        JEIWorldGenMod.init(networkHandler);
+        JEIWorldGenMod.init(networkHandler, new FabricMixinFixWrapper());
 
         ServerWorldEvents.LOAD.register(new ServerWorldEvents.Load() {
             boolean loaded = false;
@@ -26,6 +27,7 @@ public final class JEIWorldGenModFabric implements ModInitializer {
             public void onWorldLoad(MinecraftServer server, ServerLevel world) {
                 if(!loaded) {
                     world.registryAccess().registry(Registries.BIOME).ifPresent(JEIWorldGenMod::buildBiomeData);
+                    JEIWorldGenMod.buildLootData(server.getLootData());
                     loaded = true;
                 }
             }
