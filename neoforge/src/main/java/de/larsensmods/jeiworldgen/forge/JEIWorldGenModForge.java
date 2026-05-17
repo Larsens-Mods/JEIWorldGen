@@ -27,7 +27,7 @@ public final class JEIWorldGenModForge {
         JEIWorldGenMod.init(networkHandler);
     }
 
-    @EventBusSubscriber(bus = EventBusSubscriber.Bus.GAME)
+    @EventBusSubscriber
     public static class ServerStartHandlerGameBus {
 
         static boolean loaded = false;
@@ -35,7 +35,7 @@ public final class JEIWorldGenModForge {
         @SubscribeEvent
         public static void onServerStarted(ServerStartedEvent event) {
             if(!loaded) {
-                event.getServer().registryAccess().registry(Registries.BIOME).ifPresent(JEIWorldGenMod::buildBiomeData);
+                event.getServer().registryAccess().lookup(Registries.BIOME).ifPresent(JEIWorldGenMod::buildBiomeData);
                 JEIWorldGenMod.buildLootData(event.getServer().reloadableRegistries());
                 loaded = true;
             }
@@ -50,7 +50,7 @@ public final class JEIWorldGenModForge {
         }
     }
 
-    @EventBusSubscriber(bus = EventBusSubscriber.Bus.MOD)
+    @EventBusSubscriber
     public static class ServerStartHandlerModBus {
 
         @SubscribeEvent

@@ -5,8 +5,8 @@ import de.larsensmods.jeiworldgen.networking.Channels;
 import de.larsensmods.jeiworldgen.networking.INetworkHandler;
 import de.larsensmods.jeiworldgen.networking.LootInfo;
 import de.larsensmods.jeiworldgen.networking.WorldGenInfo;
+import net.fabricmc.fabric.api.networking.v1.FriendlyByteBufs;
 import net.fabricmc.fabric.api.networking.v1.LoginPacketSender;
-import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
 import net.fabricmc.fabric.api.networking.v1.ServerLoginNetworking;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.server.MinecraftServer;
@@ -46,7 +46,7 @@ public class ServerNetworkHandler implements INetworkHandler {
 
     public void sendWorldGenInfo(ServerLoginPacketListenerImpl handler, MinecraftServer server, LoginPacketSender sender, ServerLoginNetworking.LoginSynchronizer synchronizer) {
         if(worldGenInfo != null) {
-            FriendlyByteBuf byteBuf = PacketByteBufs.create();
+            FriendlyByteBuf byteBuf = FriendlyByteBufs.create();
             worldGenInfo.encode(byteBuf);
             sender.sendPacket(Channels.BIOME_DATA_SYNC, byteBuf);
             JEIWorldGenMod.LOGGER.info("Sent data sync packet");
@@ -54,7 +54,7 @@ public class ServerNetworkHandler implements INetworkHandler {
             JEIWorldGenMod.LOGGER.warn("No WorldGenInfo present on client connect");
         }
         if(lootInfo != null){
-            FriendlyByteBuf byteBuf = PacketByteBufs.create();
+            FriendlyByteBuf byteBuf = FriendlyByteBufs.create();
             lootInfo.encode(byteBuf);
             sender.sendPacket(Channels.LOOT_DATA_SYNC, byteBuf);
             JEIWorldGenMod.LOGGER.info("Sent loot sync packet");

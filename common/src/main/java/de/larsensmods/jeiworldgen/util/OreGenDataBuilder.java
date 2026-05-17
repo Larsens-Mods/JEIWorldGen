@@ -62,7 +62,7 @@ public class OreGenDataBuilder {
                     }else if(countModifier == null && rarityFilter == null && heightModifier != null){
                         biomeData.addOreData(new OreGenData.OreData(targets, oreConfig.size, CountPlacement.of(1), heightModifier));
                     }else{
-                        JEIWorldGenMod.LOGGER.warn("Missing data for {} in {}", placedFeatureHolder, biome.location());
+                        JEIWorldGenMod.LOGGER.warn("Missing data for {} in {}", placedFeatureHolder, biome.identifier());
                         for(PlacementModifier mod : placement){
                             JEIWorldGenMod.LOGGER.info(" - Modifier: {} with type {}", mod, mod.type());
                         }
@@ -70,7 +70,7 @@ public class OreGenDataBuilder {
                 }
             }
 
-            data.addBiomeData(biome.location(), biomeData);
+            data.addBiomeData(biome.identifier(), biomeData);
         }
 
         return data;

@@ -1,5 +1,5 @@
 modLoader = "javafml"
-loaderVersion = "[4,)"
+loaderVersion = "${neoforge_loader_version_range}"
 #issueTrackerURL = ""
 license = "GNU GPL 3.0"
 
@@ -17,21 +17,21 @@ displayTest = "NONE"
 [[dependencies.jeiworldgen]]
 modId = "neoforge"
 type = "required"
-versionRange = "[4,)"
+versionRange = "[${neoforge_version},)"
 ordering = "NONE"
 side = "BOTH"
 
 [[dependencies.jeiworldgen]]
 modId = "minecraft"
 type = "required"
-versionRange = "[1.21,)"
+versionRange = "${minecraft_version_range}"
 ordering = "NONE"
 side = "BOTH"
 
 [[dependencies.jeiworldgen]]
 modId = "jei"
 type = "optional"
-versionRange = "[19.25.1.326,)"
+versionRange = "[${jei_version},)"
 ordering = "NONE"
 side = "CLIENT"
 

@@ -11,7 +11,7 @@ public class ClientEvents {
 
     public static void playerJoinedWorld(Player player){
         if(!sentMessageInSession && ClientDataStore.WG_INFO == null && ConfigManager.getConfig().showNoDataMessage()){
-            player.displayClientMessage(Component.translatable("jeiwg.no_data"), false);
+            player.sendSystemMessage(Component.translatable("jeiwg.no_data"));
             sentMessageInSession = true;
         }
     }

@@ -5,12 +5,12 @@ import de.larsensmods.jeiworldgen.client.LootData;
 import de.larsensmods.jeiworldgen.client.OreGenData;
 import de.larsensmods.jeiworldgen.mixin.*;
 import de.larsensmods.jeiworldgen.networking.WorldGenInfo;
-import net.minecraft.advancements.critereon.EnchantmentPredicate;
-import net.minecraft.advancements.critereon.ItemEnchantmentsPredicate;
-import net.minecraft.advancements.critereon.ItemPredicate;
-import net.minecraft.advancements.critereon.ItemSubPredicates;
+import net.minecraft.advancements.criterion.EnchantmentPredicate;
+import net.minecraft.advancements.criterion.ItemPredicate;
 import net.minecraft.core.Holder;
 import net.minecraft.core.HolderSet;
+import net.minecraft.core.component.predicates.DataComponentPredicates;
+import net.minecraft.core.component.predicates.EnchantmentsPredicate;
 import net.minecraft.server.ReloadableServerRegistries;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.Item;
@@ -44,16 +44,18 @@ public class LootDataBuilder {
         for(OreGenData.BiomeData biomeData : wgInfo.data().biomeData.values()){
             for(OreGenData.OreData oreData : biomeData.ores){
                 for(ItemStack itemStack : oreData.getTargets()){
-                    if(data.knownBlock(itemStack.getItemHolder())){
+                    if(data.knownBlock(itemStack.getItem())){
                         continue;
                     }
                     Item item = itemStack.getItem();
                     if(item instanceof BlockItem bItem){
                         Block block = bItem.getBlock();
-                        LootTable table = lootRegistry.getLootTable(block.getLootTable());
-                        for(LootPool pool : ((LootTableAccessor) table).jeiwg$pools()){
-                            List<LootPoolEntryContainer> entries = ((LootPoolAccessor) pool).jeiwg$entries();
-                            data.addLootData(itemStack.getItemHolder(), unwrapLootEntry(entries));
+                        if(block.getLootTable().isPresent()) {
+                            LootTable table = lootRegistry.getLootTable(block.getLootTable().get());
+                            for (LootPool pool : ((LootTableAccessor) table).jeiwg$pools()) {
+                                List<LootPoolEntryContainer> entries = ((LootPoolAccessor) pool).jeiwg$entries();
+                                data.addLootData(itemStack.getItem(), unwrapLootEntry(entries));
+                            }
                         }
                     }else{
                         JEIWorldGenMod.LOGGER.warn("Found non-block item in ore target list: {}", item.getDescriptionId());
@@ -84,7 +86,7 @@ public class LootDataBuilder {
 
                 blockLootData.add(new LootData.AlternativesLootData(unwrapLootEntry(children)));
             }else{
-                JEIWorldGenMod.LOGGER.warn("Found unsupported loot entry type: {}", entry.getType());
+                JEIWorldGenMod.LOGGER.warn("Found unsupported loot entry type: {}", entry.getClass().getName());
             }
         }
 
@@ -95,9 +97,9 @@ public class LootDataBuilder {
         for(LootItemCondition condition : conditions){
             if(condition instanceof MatchTool(java.util.Optional<ItemPredicate> pred) && pred.isPresent()){
                 ItemPredicate toolPredicate = pred.get();
-                if(toolPredicate.subPredicates().containsKey(ItemSubPredicates.ENCHANTMENTS)){
-                    if(toolPredicate.subPredicates().get(ItemSubPredicates.ENCHANTMENTS) instanceof ItemEnchantmentsPredicate predicate){
-                        for(EnchantmentPredicate enchantment : ((ItemEnchantmentsPredicateAccessor) predicate).jeiwg$enchantments()){
+                if(toolPredicate.components().partial().containsKey(DataComponentPredicates.ENCHANTMENTS)){
+                    if(toolPredicate.components().partial().get(DataComponentPredicates.ENCHANTMENTS) instanceof EnchantmentsPredicate predicate){
+                        for(EnchantmentPredicate enchantment : ((EnchantmentsPredicateAccessor) predicate).jeiwg$enchantments()){
                             for(Holder<Enchantment> enchHolder : enchantment.enchantments().orElseGet(HolderSet::empty)){
                                 if(enchHolder.is(Enchantments.SILK_TOUCH)){
                                     return true;
@@ -114,7 +116,7 @@ public class LootDataBuilder {
     private static int calcMinCount(List<LootItemFunction> functions){
         for(LootItemFunction function : functions){
             if(function instanceof SetItemCountFunction countFunction){
-                NumberProvider provider = ((SetItemCountFunctionAccessor) countFunction).jeiwg$value();
+                NumberProvider provider = ((SetItemCountFunctionAccessor) countFunction).jeiwg$count();
                 return minFromNumberProvider(provider);
             }
         }
@@ -124,7 +126,7 @@ public class LootDataBuilder {
     private static int calcMaxCount(List<LootItemFunction> functions){
         for(LootItemFunction function : functions){
             if(function instanceof SetItemCountFunction countFunction){
-                NumberProvider provider = ((SetItemCountFunctionAccessor) countFunction).jeiwg$value();
+                NumberProvider provider = ((SetItemCountFunctionAccessor) countFunction).jeiwg$count();
                 return maxFromNumberProvider(provider);
             }
         }
@@ -154,7 +156,7 @@ public class LootDataBuilder {
                 return minFromNumberProvider(uniform.min());
             }
             default -> {
-                JEIWorldGenMod.LOGGER.warn("Found unsupported loot item function number provider type (min): {}", provider.getType());
+                JEIWorldGenMod.LOGGER.warn("Found unsupported loot item function number provider type (min): {}", provider.getClass().getName());
                 return Integer.MIN_VALUE;
             }
         }
@@ -172,7 +174,7 @@ public class LootDataBuilder {
                 return minFromNumberProvider(uniform.max());
             }
             default -> {
-                JEIWorldGenMod.LOGGER.warn("Found unsupported loot item function number provider type (max): {}", provider.getType());
+                JEIWorldGenMod.LOGGER.warn("Found unsupported loot item function number provider type (max): {}", provider.getClass().getName());
                 return Integer.MAX_VALUE;
             }
         }

@@ -1,6 +1,5 @@
 package de.larsensmods.jeiworldgen.client;
 
-import net.minecraft.core.Holder;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -12,24 +11,24 @@ import java.util.Set;
 
 public class LootData {
 
-    public final Map<String, Set<BlockLootData>> lootData = new HashMap<>();
+    public final Map<Item, Set<BlockLootData>> lootData = new HashMap<>();
 
-    public void addLootData(Holder<Item> itemHolder, Set<BlockLootData> lootData){
-        this.lootData.put(itemHolder.getRegisteredName(), lootData);
+    public void addLootData(Item item, Set<BlockLootData> lootData){
+        this.lootData.put(item, lootData);
     }
 
-    public boolean knownBlock(Holder<Item> itemHolder){
-        return this.lootData.containsKey(itemHolder.getRegisteredName());
+    public boolean knownBlock(Item item){
+        return this.lootData.containsKey(item);
     }
 
-    public Set<BlockLootData> dataForEntry(Holder<Item> itemHolder){
-        return this.lootData.getOrDefault(itemHolder.getRegisteredName(), Set.of());
+    public Set<BlockLootData> dataForEntry(Item item){
+        return this.lootData.getOrDefault(item, Set.of());
     }
 
     public void writeTo(FriendlyByteBuf byteBuf){
         byteBuf.writeInt(lootData.size());
-        for(Map.Entry<String, Set<BlockLootData>> entry : lootData.entrySet()){
-            byteBuf.writeUtf(entry.getKey());
+        for(Map.Entry<Item, Set<BlockLootData>> entry : lootData.entrySet()){
+            byteBuf.writeInt(Item.getId(entry.getKey()));
             byteBuf.writeInt(entry.getValue().size());
             for(BlockLootData data : entry.getValue()){
                 data.writeTo(byteBuf);
@@ -42,7 +41,7 @@ public class LootData {
 
         int size = byteBuf.readInt();
         for(int i = 0; i < size; i++){
-            String key = byteBuf.readUtf();
+            Item key = Item.byId(byteBuf.readInt());
             int setSize = byteBuf.readInt();
             Set<BlockLootData> value = new HashSet<>();
             for(int j = 0; j < setSize; j++) {
@@ -94,7 +93,7 @@ public class LootData {
         }
 
         static ItemDropData readFrom(FriendlyByteBuf byteBuf){
-            ItemDropData data = new ItemDropData(byteBuf.readJsonWithCodec(ItemStack.CODEC));
+            ItemDropData data = new ItemDropData(byteBuf.readLenientJsonWithCodec(ItemStack.CODEC));
             data.affectedByFortune = byteBuf.readBoolean();
             data.silkTouchOnly = byteBuf.readBoolean();
             data.minCount = byteBuf.readInt();

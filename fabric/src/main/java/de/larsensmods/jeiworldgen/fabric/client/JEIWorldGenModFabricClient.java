@@ -9,7 +9,7 @@ import de.larsensmods.jeiworldgen.networking.WorldGenInfo;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientEntityEvents;
 import net.fabricmc.fabric.api.client.networking.v1.ClientLoginNetworking;
-import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
+import net.fabricmc.fabric.api.networking.v1.FriendlyByteBufs;
 import net.minecraft.client.Minecraft;
 import net.minecraft.world.entity.player.Player;
 
@@ -23,12 +23,12 @@ public final class JEIWorldGenModFabricClient implements ClientModInitializer {
         ClientLoginNetworking.registerGlobalReceiver(Channels.BIOME_DATA_SYNC, (client, handler, buf, listenerAdder) -> {
             JEIWorldGenMod.LOGGER.info("Received data sync packet");
             ClientDataStore.WG_INFO = WorldGenInfo.decode(buf);
-            return CompletableFuture.completedFuture(PacketByteBufs.empty());
+            return CompletableFuture.completedFuture(FriendlyByteBufs.empty());
         });
         ClientLoginNetworking.registerGlobalReceiver(Channels.LOOT_DATA_SYNC, (client, handler, buf, callbacksConsumer) -> {
             JEIWorldGenMod.LOGGER.info("Received loot sync packet");
             ClientDataStore.LOOT_INFO = LootInfo.decode(buf);
-            return CompletableFuture.completedFuture(PacketByteBufs.empty());
+            return CompletableFuture.completedFuture(FriendlyByteBufs.empty());
         });
 
         ClientEntityEvents.ENTITY_LOAD.register((entity, world) -> {

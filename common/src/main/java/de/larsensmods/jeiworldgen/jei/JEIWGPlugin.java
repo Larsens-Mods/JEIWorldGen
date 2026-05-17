@@ -8,8 +8,9 @@ import mezz.jei.api.registration.IGuiHandlerRegistration;
 import mezz.jei.api.registration.IRecipeCategoryRegistration;
 import mezz.jei.api.registration.IRecipeRegistration;
 import net.minecraft.client.Minecraft;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import org.jetbrains.annotations.NotNull;
+import org.jspecify.annotations.NonNull;
 
 @JeiPlugin
 public class JEIWGPlugin implements IModPlugin {
@@ -18,8 +19,8 @@ public class JEIWGPlugin implements IModPlugin {
      * The namespace should be your mod's modId.
      */
     @Override
-    public @NotNull ResourceLocation getPluginUid() {
-        return ResourceLocation.fromNamespaceAndPath(JEIWorldGenMod.MOD_ID, "world_generation_plugin");
+    public @NotNull Identifier getPluginUid() {
+        return Identifier.fromNamespaceAndPath(JEIWorldGenMod.MOD_ID, "world_generation_plugin");
     }
 
     @Override
@@ -34,7 +35,7 @@ public class JEIWGPlugin implements IModPlugin {
     }
 
     @Override
-    public void registerGuiHandlers(IGuiHandlerRegistration registration) {
+    public void registerGuiHandlers(@NonNull IGuiHandlerRegistration registration) {
         IModPlugin.super.registerGuiHandlers(registration);
     }
 }

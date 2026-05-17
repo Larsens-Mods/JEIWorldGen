@@ -9,12 +9,13 @@ import de.larsensmods.jeiworldgen.mixin.*;
 import de.larsensmods.jeiworldgen.util.CompareUtils;
 import de.larsensmods.jeiworldgen.util.ValueHelpers;
 import mezz.jei.api.gui.builder.ITooltipBuilder;
-import mezz.jei.api.recipe.RecipeType;
 import mezz.jei.api.recipe.category.extensions.IRecipeCategoryExtension;
+import mezz.jei.api.recipe.types.IRecipeType;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
+import net.minecraft.util.ARGB;
 import net.minecraft.util.valueproviders.IntProvider;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.biome.Biomes;
@@ -29,20 +30,20 @@ import static de.larsensmods.jeiworldgen.jei.JEIWorldGenCategory.COORDS_SIZE_Y;
 
 public class WorldGenTypeHelper implements IRecipeCategoryExtension<WorldGenTypeHelper> {
 
-    private static final Set<ResourceLocation> NON_OVERWORLD_BIOMES = Set.of(
-            Biomes.NETHER_WASTES.location(),
-            Biomes.SOUL_SAND_VALLEY.location(),
-            Biomes.CRIMSON_FOREST.location(),
-            Biomes.WARPED_FOREST.location(),
-            Biomes.BASALT_DELTAS.location(),
-            Biomes.THE_END.location(),
-            Biomes.SMALL_END_ISLANDS.location(),
-            Biomes.END_MIDLANDS.location(),
-            Biomes.END_HIGHLANDS.location(),
-            Biomes.END_BARRENS.location()
+    private static final Set<Identifier> NON_OVERWORLD_BIOMES = Set.of(
+            Biomes.NETHER_WASTES.identifier(),
+            Biomes.SOUL_SAND_VALLEY.identifier(),
+            Biomes.CRIMSON_FOREST.identifier(),
+            Biomes.WARPED_FOREST.identifier(),
+            Biomes.BASALT_DELTAS.identifier(),
+            Biomes.THE_END.identifier(),
+            Biomes.SMALL_END_ISLANDS.identifier(),
+            Biomes.END_MIDLANDS.identifier(),
+            Biomes.END_HIGHLANDS.identifier(),
+            Biomes.END_BARRENS.identifier()
     );
 
-    public static final RecipeType<WorldGenTypeHelper> RECIPE_TYPE = new RecipeType<>(ResourceLocation.fromNamespaceAndPath(JEIWorldGenMod.MOD_ID, "world_generation"), WorldGenTypeHelper.class);
+    public static final IRecipeType<WorldGenTypeHelper> RECIPE_TYPE = IRecipeType.create(Identifier.fromNamespaceAndPath(JEIWorldGenMod.MOD_ID, "world_generation"), WorldGenTypeHelper.class);
 
     public static List<WorldGenTypeHelper> buildRecipes(){
         JEIWorldGenMod.LOGGER.info("Building world gen JEI recipes");
@@ -54,10 +55,10 @@ public class WorldGenTypeHelper implements IRecipeCategoryExtension<WorldGenType
         }
 
         List<OreGenData.OreData> foundOreData = new ArrayList<>();
-        List<Set<ResourceLocation>> dataBiomes = new ArrayList<>();
+        List<Set<Identifier>> dataBiomes = new ArrayList<>();
 
-        for(Map.Entry<ResourceLocation, OreGenData.BiomeData> biomeEntry : data.biomeData.entrySet()){
-            ResourceLocation biome = biomeEntry.getKey();
+        for(Map.Entry<Identifier, OreGenData.BiomeData> biomeEntry : data.biomeData.entrySet()){
+            Identifier biome = biomeEntry.getKey();
             OreGenData.BiomeData biomeData = biomeEntry.getValue();
 
             for(OreGenData.OreData oreData : biomeData.ores){
@@ -65,7 +66,7 @@ public class WorldGenTypeHelper implements IRecipeCategoryExtension<WorldGenType
                     dataBiomes.get(foundOreData.indexOf(oreData)).add(biome);
                 }else{
                     foundOreData.add(oreData);
-                    Set<ResourceLocation> biomeSet = new HashSet<>();
+                    Set<Identifier> biomeSet = new HashSet<>();
                     biomeSet.add(biome);
                     dataBiomes.add(biomeSet);
                 }
@@ -76,17 +77,17 @@ public class WorldGenTypeHelper implements IRecipeCategoryExtension<WorldGenType
 
         for(int i = 0; i < foundOreData.size(); i++){
             OreGenData.OreData oreData = foundOreData.get(i);
-            Set<ResourceLocation> biomes = dataBiomes.get(i);
-            JEIWorldGenMod.LOGGER.debug("Found ore gen data set for {} biomes: {}", biomes.size(), String.join(", ", biomes.stream().map(ResourceLocation::toString).toList()));
+            Set<Identifier> biomes = dataBiomes.get(i);
+            JEIWorldGenMod.LOGGER.debug("Found ore gen data set for {} biomes: {}", biomes.size(), String.join(", ", biomes.stream().map(Identifier::toString).toList()));
 
-            ResourceLocation sampleBiome = biomes.stream().toList().getFirst();
+            Identifier sampleBiome = biomes.stream().toList().getFirst();
 
             WorldGenTypeHelper entry = new WorldGenTypeHelper(biomes, oreData.getTargets());
 
             float multiplier = 1;
             if(oreData.getCountPlacement() != null){
                 IntProvider intProvider = ((CountPlacementAccessor) oreData.getCountPlacement()).jeiwg$count();
-                multiplier = (intProvider.getMinValue() + intProvider.getMaxValue()) / 2f;
+                multiplier = (intProvider.minInclusive() + intProvider.maxInclusive()) / 2f;
             }else if(oreData.getRarityFilter() != null){
                 int chance = ((RarityFilterAccessor) oreData.getRarityFilter()).jeiwg$chance();
                 multiplier = 1f / chance;
@@ -193,12 +194,12 @@ public class WorldGenTypeHelper implements IRecipeCategoryExtension<WorldGenType
 
     //Implementation
 
-    public final Set<ResourceLocation> biomes;
+    public final Set<Identifier> biomes;
     public final Set<ItemStack> blocks;
 
     protected final Set<int[]> distributionDrawParams = new HashSet<>();
 
-    public WorldGenTypeHelper(Set<ResourceLocation> biomes, Set<ItemStack> blocks){
+    public WorldGenTypeHelper(Set<Identifier> biomes, Set<ItemStack> blocks){
         this.biomes = biomes;
         this.blocks = blocks;
     }
@@ -212,7 +213,7 @@ public class WorldGenTypeHelper implements IRecipeCategoryExtension<WorldGenType
     }
 
     public List<String> getBiomeInfo(){
-        List<String> info = biomes.stream().map(ResourceLocation::toString).toList();
+        List<String> info = biomes.stream().map(Identifier::toString).toList();
         if(info.size() > 5){
             info = new ArrayList<>(info.subList(0, 5));
             info.add(" + " + (biomes.size() - 5));
@@ -221,7 +222,7 @@ public class WorldGenTypeHelper implements IRecipeCategoryExtension<WorldGenType
     }
 
     public boolean metaEquals(WorldGenTypeHelper other){
-        return CompareUtils.areItemStackSetsEqual(this.blocks, other.blocks) && CompareUtils.areResourceLocationSetsEqual(this.biomes, other.biomes);
+        return CompareUtils.areItemStackSetsEqual(this.blocks, other.blocks) && CompareUtils.areIdentifierSetsEqual(this.biomes, other.biomes);
     }
 
     //GUI STUFF
@@ -234,16 +235,16 @@ public class WorldGenTypeHelper implements IRecipeCategoryExtension<WorldGenType
     protected int[] drawHeights = new int[0];
 
     @Override
-    public void drawInfo(WorldGenTypeHelper recipe, int recipeWidth, int recipeHeight, GuiGraphics guiGraphics, double mouseX, double mouseY) {
+    public void drawInfo(WorldGenTypeHelper recipe, int recipeWidth, int recipeHeight, GuiGraphicsExtractor guiGraphics, double mouseX, double mouseY) {
         recalcDrawMeta();
 
         int labelX = 40, labelY = 2;
 
-        guiGraphics.pose().pushPose();
-        guiGraphics.pose().translate(labelX, labelY, 0);
-        guiGraphics.pose().scale(0.75f, 0.75f, 1);
-        guiGraphics.drawString(Minecraft.getInstance().font, getBiomeString(), 0, 0, 8, false);
-        guiGraphics.pose().popPose();
+        guiGraphics.pose().pushMatrix();
+        guiGraphics.pose().translate(labelX, labelY);
+        guiGraphics.pose().scale(0.75f, 0.75f);
+        guiGraphics.text(Minecraft.getInstance().font, Component.literal(getBiomeString()), 0, 0, ARGB.opaque(8), false);
+        guiGraphics.pose().popMatrix();
 
         drawGraphNumbering(guiGraphics);
 
@@ -279,7 +280,7 @@ public class WorldGenTypeHelper implements IRecipeCategoryExtension<WorldGenType
         }
     }
 
-    private void drawGraphNumbering(GuiGraphics guiGraphics){
+    private void drawGraphNumbering(GuiGraphicsExtractor guiGraphics){
         int labelY = COORDS_BASE_Y + 2;
 
         int ySteps = displayHeight / 8;
@@ -287,11 +288,11 @@ public class WorldGenTypeHelper implements IRecipeCategoryExtension<WorldGenType
             double xPos = fromWorldHeight(y);
             int labelX = (int) Math.round(xPos);
 
-            guiGraphics.pose().pushPose();
-            guiGraphics.pose().translate(labelX, labelY, 0);
-            guiGraphics.pose().scale(0.65f, 0.65f, 1);
-            guiGraphics.drawString(Minecraft.getInstance().font, Integer.toString(y), 0, 0, 8, false);
-            guiGraphics.pose().popPose();
+            guiGraphics.pose().pushMatrix();
+            guiGraphics.pose().translate(labelX, labelY);
+            guiGraphics.pose().scale(0.65f, 0.65f);
+            guiGraphics.text(Minecraft.getInstance().font, Integer.toString(y), 0, 0, ARGB.opaque(8), false);
+            guiGraphics.pose().popMatrix();
         }
     }
 
@@ -361,7 +362,7 @@ public class WorldGenTypeHelper implements IRecipeCategoryExtension<WorldGenType
 
         private final Set<WorldGenTypeHelper> underlyingHelpers;
 
-        public Merged(Set<ResourceLocation> biomes, Set<ItemStack> blocks, Set<WorldGenTypeHelper> toMerge) {
+        public Merged(Set<Identifier> biomes, Set<ItemStack> blocks, Set<WorldGenTypeHelper> toMerge) {
             super(biomes, blocks);
             this.underlyingHelpers = toMerge;
         }

@@ -4,7 +4,7 @@ import de.larsensmods.jeiworldgen.JEIWorldGenMod;
 import de.larsensmods.jeiworldgen.mixin.CountPlacementAccessor;
 import de.larsensmods.jeiworldgen.mixin.HeightRangePlacementAccessor;
 import de.larsensmods.jeiworldgen.mixin.RarityFilterAccessor;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.util.valueproviders.IntProvider;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.levelgen.heightproviders.*;
@@ -36,13 +36,13 @@ public class CompareUtils {
         return true;
     }
 
-    public static boolean areResourceLocationSetsEqual(Set<ResourceLocation> set1, Set<ResourceLocation> set2){
-        for(ResourceLocation rl1 : set1){
+    public static boolean areIdentifierSetsEqual(Set<Identifier> set1, Set<Identifier> set2){
+        for(Identifier rl1 : set1){
             if(!set2.contains(rl1)) {
                 return false;
             }
         }
-        for (ResourceLocation rl2 : set2){
+        for (Identifier rl2 : set2){
             if(!set1.contains(rl2)) {
                 return false;
             }
@@ -58,7 +58,7 @@ public class CompareUtils {
         }
         IntProvider aProvider = ((CountPlacementAccessor) a).jeiwg$count();
         IntProvider bProvider = ((CountPlacementAccessor) b).jeiwg$count();
-        return aProvider.getType().equals(bProvider.getType()) && aProvider.getMinValue() == bProvider.getMinValue() && aProvider.getMaxValue() == bProvider.getMaxValue();
+        return aProvider.minInclusive() == bProvider.minInclusive() && aProvider.maxInclusive() == bProvider.maxInclusive();
     }
 
     public static boolean rarityFilterEquals(RarityFilter a, RarityFilter b){

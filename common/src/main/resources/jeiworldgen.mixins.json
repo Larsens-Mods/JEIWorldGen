@@ -1,6 +1,7 @@
 {
   "required": true,
   "package": "de.larsensmods.jeiworldgen.mixin",
+  "refmap": "${mod_id}.refmap.json",
   "compatibilityLevel": "JAVA_21",
   "minVersion": "0.8",
   "client": [
@@ -10,7 +11,7 @@
     "CompositeEntryBaseAccessor",
     "CountPlacementAccessor",
     "HeightRangePlacementAccessor",
-    "ItemEnchantmentsPredicateAccessor",
+    "EnchantmentsPredicateAccessor",
     "LootItemAccessor",
     "LootPoolAccessor",
     "LootPoolEntryContainerAccessor",

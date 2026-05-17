@@ -10,11 +10,11 @@ import mezz.jei.api.gui.drawable.IDrawable;
 import mezz.jei.api.gui.ingredient.IRecipeSlotsView;
 import mezz.jei.api.helpers.IJeiHelpers;
 import mezz.jei.api.recipe.IFocusGroup;
-import mezz.jei.api.recipe.RecipeType;
 import mezz.jei.api.recipe.category.IRecipeCategory;
-import net.minecraft.client.gui.GuiGraphics;
+import mezz.jei.api.recipe.types.IRecipeType;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import org.jetbrains.annotations.NotNull;
@@ -33,15 +33,18 @@ public class JEIWorldGenCategory implements IRecipeCategory<WorldGenTypeHelper> 
 
     private final IJeiHelpers helpers;
     private final IDrawable background, icon;
+    private final Identifier bgTexture;
+    private final int width = 156, height = 80;
 
     public JEIWorldGenCategory(IJeiHelpers helpers) {
         this.helpers = helpers;
-        this.background = new BGDrawable(ResourceLocation.fromNamespaceAndPath(JEIWorldGenMod.MOD_ID, "textures/gui/category_bg.png"), 156, 80);
-        this.icon = this.helpers.getGuiHelper().createDrawable(ResourceLocation.fromNamespaceAndPath(JEIWorldGenMod.MOD_ID, "textures/gui/category_icon.png"), 0, 0, 16, 16);
+        this.background = new BGDrawable(Identifier.fromNamespaceAndPath(JEIWorldGenMod.MOD_ID, "textures/gui/category_bg.png"), 156, 80);
+        this.bgTexture = Identifier.fromNamespaceAndPath(JEIWorldGenMod.MOD_ID, "textures/gui/category_bg.png");
+        this.icon = this.helpers.getGuiHelper().createDrawable(Identifier.fromNamespaceAndPath(JEIWorldGenMod.MOD_ID, "textures/gui/category_icon.png"), 0, 0, 16, 16);
     }
 
     @Override
-    public @NotNull RecipeType<WorldGenTypeHelper> getRecipeType() {
+    public @NotNull IRecipeType<WorldGenTypeHelper> getRecipeType() {
         return WorldGenTypeHelper.RECIPE_TYPE;
     }
 
@@ -66,7 +69,7 @@ public class JEIWorldGenCategory implements IRecipeCategory<WorldGenTypeHelper> 
             List<List<Component>> tooltipLines = new ArrayList<>();
             LootData lootData = ClientDataStore.LOOT_INFO.data();
             for (ItemStack block : genBlockStacks) {
-                Set<LootData.BlockLootData> blockLootData = lootData.dataForEntry(block.getItemHolder());
+                Set<LootData.BlockLootData> blockLootData = lootData.dataForEntry(block.getItem());
                 this.addMissingLoot(dropStacks, tooltipLines, block, blockLootData, genBlockStacks);
             }
             List<List<ItemStack>> outputStacks = new ArrayList<>();
@@ -170,9 +173,9 @@ public class JEIWorldGenCategory implements IRecipeCategory<WorldGenTypeHelper> 
     }
 
     @Override
-    public void draw(WorldGenTypeHelper recipe, IRecipeSlotsView recipeSlotsView, GuiGraphics guiGraphics, double mouseX, double mouseY) {
+    public void draw(WorldGenTypeHelper recipe, IRecipeSlotsView recipeSlotsView, GuiGraphicsExtractor guiGraphics, double mouseX, double mouseY) {
         //Draw Background
-        this.background.draw(guiGraphics);
+        this.background.draw(guiGraphics, 0, 0);
 
         //Draw Coords Grid
         RenderUtils.drawLine(guiGraphics, COORDS_BASE_X, COORDS_BASE_Y, COORDS_BASE_X + COORDS_SIZE_X, COORDS_BASE_Y, 0xFF444444);

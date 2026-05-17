@@ -2,7 +2,7 @@ package de.larsensmods.jeiworldgen.client;
 
 import de.larsensmods.jeiworldgen.util.CompareUtils;
 import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.levelgen.placement.CountPlacement;
 import net.minecraft.world.level.levelgen.placement.HeightRangePlacement;
@@ -15,16 +15,16 @@ import java.util.Set;
 
 public class OreGenData {
 
-    public final Map<ResourceLocation, BiomeData> biomeData = new HashMap<>();
+    public final Map<Identifier, BiomeData> biomeData = new HashMap<>();
 
-    public void addBiomeData(ResourceLocation biome, BiomeData data){
+    public void addBiomeData(Identifier biome, BiomeData data){
         this.biomeData.put(biome, data);
     }
 
     public void writeTo(FriendlyByteBuf byteBuf){
         byteBuf.writeInt(biomeData.size());
-        for(Map.Entry<ResourceLocation, BiomeData> biomeEntry : biomeData.entrySet()){
-            byteBuf.writeResourceLocation(biomeEntry.getKey());
+        for(Map.Entry<Identifier, BiomeData> biomeEntry : biomeData.entrySet()){
+            byteBuf.writeIdentifier(biomeEntry.getKey());
             BiomeData data = biomeEntry.getValue();
             data.writeTo(byteBuf);
         }
@@ -35,7 +35,7 @@ public class OreGenData {
 
         int size = byteBuf.readInt();
         for(int i = 0; i < size; i++){
-            ResourceLocation biome = byteBuf.readResourceLocation();
+            Identifier biome = byteBuf.readIdentifier();
             BiomeData biomeData = BiomeData.readFrom(byteBuf);
             data.addBiomeData(biome, biomeData);
         }
@@ -147,20 +147,20 @@ public class OreGenData {
             int targetSize = byteBuf.readInt();
             Set<ItemStack> targets = new HashSet<>();
             for (int i = 0; i < targetSize; i++){
-                targets.add(byteBuf.readJsonWithCodec(ItemStack.CODEC));
+                targets.add(byteBuf.readLenientJsonWithCodec(ItemStack.CODEC));
             }
             int size = byteBuf.readInt();
             CountPlacement countPlacement = null;
             RarityFilter rarityFilter = null;
             char placementType = byteBuf.readChar();
             if(placementType == 'c'){
-                countPlacement = byteBuf.readJsonWithCodec(CountPlacement.CODEC.codec());
+                countPlacement = byteBuf.readLenientJsonWithCodec(CountPlacement.CODEC.codec());
             }else if(placementType == 'r'){
-                rarityFilter = byteBuf.readJsonWithCodec(RarityFilter.CODEC.codec());
+                rarityFilter = byteBuf.readLenientJsonWithCodec(RarityFilter.CODEC.codec());
             }else{
                 throw new IllegalStateException("Unknown placement type: " + placementType);
             }
-            HeightRangePlacement heightRangePlacement = byteBuf.readJsonWithCodec(HeightRangePlacement.CODEC.codec());
+            HeightRangePlacement heightRangePlacement = byteBuf.readLenientJsonWithCodec(HeightRangePlacement.CODEC.codec());
             return countPlacement != null
                     ? new OreData(targets, size, countPlacement, heightRangePlacement)
                     : new OreData(targets, size, rarityFilter, heightRangePlacement);
