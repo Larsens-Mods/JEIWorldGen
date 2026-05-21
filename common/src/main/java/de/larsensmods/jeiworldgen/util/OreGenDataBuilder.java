@@ -30,8 +30,8 @@ public class OreGenDataBuilder {
             OreGenData.BiomeData biomeData = new OreGenData.BiomeData();
 
             Set<Holder<PlacedFeature>> mergedHolderSet = new HashSet<>();
-            mergedHolderSet.addAll(biomeOreFeatures.get(biome).stream().toList());
-            mergedHolderSet.addAll(biomeDecoFeatures.get(biome).stream().toList());
+            mergedHolderSet.addAll(biomeOreFeatures.getOrDefault(biome, HolderSet.empty()).stream().toList());
+            mergedHolderSet.addAll(biomeDecoFeatures.getOrDefault(biome, HolderSet.empty()).stream().toList());
 
             for(Holder<PlacedFeature> placedFeatureHolder : mergedHolderSet){
                 PlacedFeature placed = placedFeatureHolder.value();
