@@ -7,6 +7,7 @@ import de.larsensmods.jeiworldgen.mixin.RarityFilterAccessor;
 import net.minecraft.resources.Identifier;
 import net.minecraft.util.valueproviders.IntProvider;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.ItemStackTemplate;
 import net.minecraft.world.level.levelgen.heightproviders.*;
 import net.minecraft.world.level.levelgen.placement.CountPlacement;
 import net.minecraft.world.level.levelgen.placement.HeightRangePlacement;
@@ -20,11 +21,31 @@ public class CompareUtils {
         return itemStackSetTestOneWay(set1, set2) && itemStackSetTestOneWay(set2, set1);
     }
 
+    public static boolean areItemStackTemplateSetsEqual(Set<ItemStackTemplate> set1, Set<ItemStackTemplate> set2){
+        return itemStackTemplateSetTestOneWay(set1, set2) && itemStackTemplateSetTestOneWay(set2, set1);
+    }
+
     private static boolean itemStackSetTestOneWay(Set<ItemStack> set1, Set<ItemStack> set2){
         for(ItemStack stack1 : set1){
             boolean foundMatch = false;
             for(ItemStack stack2 : set2){
                 if(ItemStack.isSameItem(stack1, stack2)){
+                    foundMatch = true;
+                    break;
+                }
+            }
+            if(!foundMatch){
+                return false;
+            }
+        }
+        return true;
+    }
+
+    private static boolean itemStackTemplateSetTestOneWay(Set<ItemStackTemplate> set1, Set<ItemStackTemplate> set2){
+        for(ItemStackTemplate stack1 : set1){
+            boolean foundMatch = false;
+            for(ItemStackTemplate stack2 : set2){
+                if(stack1.is(stack2.item())){
                     foundMatch = true;
                     break;
                 }

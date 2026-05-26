@@ -3,7 +3,7 @@ package de.larsensmods.jeiworldgen.client;
 import de.larsensmods.jeiworldgen.util.CompareUtils;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.Identifier;
-import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.ItemStackTemplate;
 import net.minecraft.world.level.levelgen.placement.CountPlacement;
 import net.minecraft.world.level.levelgen.placement.HeightRangePlacement;
 import net.minecraft.world.level.levelgen.placement.RarityFilter;
@@ -73,13 +73,13 @@ public class OreGenData {
 
     public static class OreData {
 
-        private final Set<ItemStack> targets;
+        private final Set<ItemStackTemplate> targets;
         private final int size;
         private final CountPlacement countPlacement;
         private final RarityFilter rarityFilter;
         private final HeightRangePlacement heightRangePlacement;
 
-        public OreData(Set<ItemStack> targets, int size, CountPlacement countPlacement, HeightRangePlacement heightRangePlacement){
+        public OreData(Set<ItemStackTemplate> targets, int size, CountPlacement countPlacement, HeightRangePlacement heightRangePlacement){
             this.targets = targets;
             this.size = size;
             this.countPlacement = countPlacement;
@@ -87,7 +87,7 @@ public class OreGenData {
             this.heightRangePlacement = heightRangePlacement;
         }
 
-        public OreData(Set<ItemStack> targets, int size, RarityFilter rarityFilter, HeightRangePlacement heightRangePlacement){
+        public OreData(Set<ItemStackTemplate> targets, int size, RarityFilter rarityFilter, HeightRangePlacement heightRangePlacement){
             this.targets = targets;
             this.size = size;
             this.countPlacement = null;
@@ -95,7 +95,7 @@ public class OreGenData {
             this.heightRangePlacement = heightRangePlacement;
         }
 
-        public Set<ItemStack> getTargets() {
+        public Set<ItemStackTemplate> getTargets() {
             return targets;
         }
 
@@ -119,7 +119,7 @@ public class OreGenData {
         public boolean equals(Object obj) {
             if(obj instanceof OreData other){
                 return size == other.size
-                        && CompareUtils.areItemStackSetsEqual(targets, other.targets)
+                        && CompareUtils.areItemStackTemplateSetsEqual(targets, other.targets)
                         && CompareUtils.countPlacementEquals(countPlacement, other.countPlacement)
                         && CompareUtils.rarityFilterEquals(rarityFilter, other.rarityFilter)
                         && CompareUtils.heightPlacementEquals(heightRangePlacement, other.heightRangePlacement);
@@ -129,8 +129,8 @@ public class OreGenData {
 
         public void writeTo(FriendlyByteBuf byteBuf){
             byteBuf.writeInt(targets.size());
-            for(ItemStack target : targets){
-                byteBuf.writeJsonWithCodec(ItemStack.CODEC, target);
+            for(ItemStackTemplate target : targets){
+                byteBuf.writeJsonWithCodec(ItemStackTemplate.CODEC, target);
             }
             byteBuf.writeInt(size);
             if(countPlacement != null) {
@@ -145,9 +145,9 @@ public class OreGenData {
 
         public static OreData readFrom(FriendlyByteBuf byteBuf){
             int targetSize = byteBuf.readInt();
-            Set<ItemStack> targets = new HashSet<>();
+            Set<ItemStackTemplate> targets = new HashSet<>();
             for (int i = 0; i < targetSize; i++){
-                targets.add(byteBuf.readLenientJsonWithCodec(ItemStack.CODEC));
+                targets.add(byteBuf.readLenientJsonWithCodec(ItemStackTemplate.CODEC));
             }
             int size = byteBuf.readInt();
             CountPlacement countPlacement = null;

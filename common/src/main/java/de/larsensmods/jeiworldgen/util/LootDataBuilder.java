@@ -15,6 +15,7 @@ import net.minecraft.server.ReloadableServerRegistries;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.ItemStackTemplate;
 import net.minecraft.world.item.enchantment.Enchantment;
 import net.minecraft.world.item.enchantment.Enchantments;
 import net.minecraft.world.level.block.Block;
@@ -43,18 +44,18 @@ public class LootDataBuilder {
         LootData data = new LootData();
         for(OreGenData.BiomeData biomeData : wgInfo.data().biomeData.values()){
             for(OreGenData.OreData oreData : biomeData.ores){
-                for(ItemStack itemStack : oreData.getTargets()){
-                    if(data.knownBlock(itemStack.getItem())){
+                for(ItemStackTemplate itemStack : oreData.getTargets()){
+                    if(data.knownBlock(itemStack.item())){
                         continue;
                     }
-                    Item item = itemStack.getItem();
+                    Item item = itemStack.item().value();
                     if(item instanceof BlockItem bItem){
                         Block block = bItem.getBlock();
                         if(block.getLootTable().isPresent()) {
                             LootTable table = lootRegistry.getLootTable(block.getLootTable().get());
                             for (LootPool pool : ((LootTableAccessor) table).jeiwg$pools()) {
                                 List<LootPoolEntryContainer> entries = ((LootPoolAccessor) pool).jeiwg$entries();
-                                data.addLootData(itemStack.getItem(), unwrapLootEntry(entries));
+                                data.addLootData(itemStack.item(), unwrapLootEntry(entries));
                             }
                         }
                     }else{

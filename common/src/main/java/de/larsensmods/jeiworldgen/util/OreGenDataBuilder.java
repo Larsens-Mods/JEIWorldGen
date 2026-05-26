@@ -6,6 +6,7 @@ import net.minecraft.core.Holder;
 import net.minecraft.core.HolderSet;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.ItemStackTemplate;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.levelgen.feature.ConfiguredFeature;
 import net.minecraft.world.level.levelgen.feature.configurations.FeatureConfiguration;
@@ -39,8 +40,8 @@ public class OreGenDataBuilder {
                 List<PlacementModifier> placement = placed.placement();
                 FeatureConfiguration config = configured.config();
                 if(config instanceof OreConfiguration oreConfig){
-                    Set<ItemStack> targets = new HashSet<>();
-                    oreConfig.targetStates.forEach(targetState -> targets.add(new ItemStack(targetState.state.getBlock())));
+                    Set<ItemStackTemplate> targets = new HashSet<>();
+                    oreConfig.targetStates.forEach(targetState -> targets.add(ItemStackTemplate.fromNonEmptyStack(new ItemStack(targetState.state.getBlock()))));
 
                     CountPlacement countModifier = null;
                     RarityFilter rarityFilter = null;

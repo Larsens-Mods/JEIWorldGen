@@ -18,6 +18,7 @@ import net.minecraft.resources.Identifier;
 import net.minecraft.util.ARGB;
 import net.minecraft.util.valueproviders.IntProvider;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.ItemStackTemplate;
 import net.minecraft.world.level.biome.Biomes;
 import net.minecraft.world.level.levelgen.heightproviders.*;
 
@@ -195,11 +196,11 @@ public class WorldGenTypeHelper implements IRecipeCategoryExtension<WorldGenType
     //Implementation
 
     public final Set<Identifier> biomes;
-    public final Set<ItemStack> blocks;
+    public final Set<ItemStackTemplate> blocks;
 
     protected final Set<int[]> distributionDrawParams = new HashSet<>();
 
-    public WorldGenTypeHelper(Set<Identifier> biomes, Set<ItemStack> blocks){
+    public WorldGenTypeHelper(Set<Identifier> biomes, Set<ItemStackTemplate> blocks){
         this.biomes = biomes;
         this.blocks = blocks;
     }
@@ -222,7 +223,7 @@ public class WorldGenTypeHelper implements IRecipeCategoryExtension<WorldGenType
     }
 
     public boolean metaEquals(WorldGenTypeHelper other){
-        return CompareUtils.areItemStackSetsEqual(this.blocks, other.blocks) && CompareUtils.areIdentifierSetsEqual(this.biomes, other.biomes);
+        return CompareUtils.areItemStackTemplateSetsEqual(this.blocks, other.blocks) && CompareUtils.areIdentifierSetsEqual(this.biomes, other.biomes);
     }
 
     //GUI STUFF
@@ -362,7 +363,7 @@ public class WorldGenTypeHelper implements IRecipeCategoryExtension<WorldGenType
 
         private final Set<WorldGenTypeHelper> underlyingHelpers;
 
-        public Merged(Set<Identifier> biomes, Set<ItemStack> blocks, Set<WorldGenTypeHelper> toMerge) {
+        public Merged(Set<Identifier> biomes, Set<ItemStackTemplate> blocks, Set<WorldGenTypeHelper> toMerge) {
             super(biomes, blocks);
             this.underlyingHelpers = toMerge;
         }

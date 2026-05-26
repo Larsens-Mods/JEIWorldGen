@@ -1,8 +1,10 @@
 package de.larsensmods.jeiworldgen.client;
 
+import net.minecraft.core.Holder;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.ItemStackTemplate;
 
 import java.util.HashMap;
 import java.util.HashSet;
@@ -11,24 +13,24 @@ import java.util.Set;
 
 public class LootData {
 
-    public final Map<Item, Set<BlockLootData>> lootData = new HashMap<>();
+    public final Map<Holder<Item>, Set<BlockLootData>> lootData = new HashMap<>();
 
-    public void addLootData(Item item, Set<BlockLootData> lootData){
+    public void addLootData(Holder<Item> item, Set<BlockLootData> lootData){
         this.lootData.put(item, lootData);
     }
 
-    public boolean knownBlock(Item item){
+    public boolean knownBlock(Holder<Item> item){
         return this.lootData.containsKey(item);
     }
 
-    public Set<BlockLootData> dataForEntry(Item item){
+    public Set<BlockLootData> dataForEntry(Holder<Item> item){
         return this.lootData.getOrDefault(item, Set.of());
     }
 
     public void writeTo(FriendlyByteBuf byteBuf){
         byteBuf.writeInt(lootData.size());
-        for(Map.Entry<Item, Set<BlockLootData>> entry : lootData.entrySet()){
-            byteBuf.writeInt(Item.getId(entry.getKey()));
+        for(Map.Entry<Holder<Item>, Set<BlockLootData>> entry : lootData.entrySet()){
+            byteBuf.writeInt(Item.getId(entry.getKey().value()));
             byteBuf.writeInt(entry.getValue().size());
             for(BlockLootData data : entry.getValue()){
                 data.writeTo(byteBuf);
@@ -47,7 +49,7 @@ public class LootData {
             for(int j = 0; j < setSize; j++) {
                 value.add(BlockLootData.readFrom(byteBuf));
             }
-            data.lootData.put(key, value);
+            data.lootData.put(Holder.direct(key), value);
         }
 
         return data;
@@ -72,10 +74,14 @@ public class LootData {
 
         public boolean affectedByFortune = false, silkTouchOnly = false;
         public int minCount = 1, maxCount = 1;
-        public final ItemStack dropItem;
+        public final ItemStackTemplate dropItem;
+
+        public ItemDropData(ItemStackTemplate dropItem) {
+            this.dropItem = dropItem;
+        }
 
         public ItemDropData(ItemStack dropItem){
-            this.dropItem = dropItem;
+            this(dropItem.isEmpty() ? null : ItemStackTemplate.fromNonEmptyStack(dropItem));
         }
 
         public ItemDropData(Item dropItem){
@@ -85,7 +91,7 @@ public class LootData {
         @Override
         void writeTo(FriendlyByteBuf byteBuf) {
             byteBuf.writeInt(0);
-            byteBuf.writeJsonWithCodec(ItemStack.CODEC, dropItem);
+            byteBuf.writeJsonWithCodec(ItemStackTemplate.CODEC, dropItem);
             byteBuf.writeBoolean(affectedByFortune);
             byteBuf.writeBoolean(silkTouchOnly);
             byteBuf.writeInt(minCount);
@@ -93,7 +99,8 @@ public class LootData {
         }
 
         static ItemDropData readFrom(FriendlyByteBuf byteBuf){
-            ItemDropData data = new ItemDropData(byteBuf.readLenientJsonWithCodec(ItemStack.CODEC));
+            ItemStackTemplate stack = byteBuf.readLenientJsonWithCodec(ItemStackTemplate.CODEC);
+            ItemDropData data = new ItemDropData(stack);
             data.affectedByFortune = byteBuf.readBoolean();
             data.silkTouchOnly = byteBuf.readBoolean();
             data.minCount = byteBuf.readInt();

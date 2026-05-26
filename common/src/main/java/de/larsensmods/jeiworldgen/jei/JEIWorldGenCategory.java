@@ -13,9 +13,11 @@ import mezz.jei.api.recipe.IFocusGroup;
 import mezz.jei.api.recipe.category.IRecipeCategory;
 import mezz.jei.api.recipe.types.IRecipeType;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.core.Holder;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.ItemStackTemplate;
 import net.minecraft.world.item.Items;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -61,7 +63,7 @@ public class JEIWorldGenCategory implements IRecipeCategory<WorldGenTypeHelper> 
 
     @Override
     public void setRecipe(IRecipeLayoutBuilder builder, WorldGenTypeHelper recipe, IFocusGroup focuses) {
-        List<ItemStack> genBlockStacks = recipe.blocks.stream().toList();
+        List<ItemStack> genBlockStacks = recipe.blocks.stream().map(ItemStackTemplate::create).toList();
         builder.addInputSlot(6, 6)
                 .addItemStacks(genBlockStacks);
         if(ClientDataStore.LOOT_INFO != null) {
@@ -69,7 +71,7 @@ public class JEIWorldGenCategory implements IRecipeCategory<WorldGenTypeHelper> 
             List<List<Component>> tooltipLines = new ArrayList<>();
             LootData lootData = ClientDataStore.LOOT_INFO.data();
             for (ItemStack block : genBlockStacks) {
-                Set<LootData.BlockLootData> blockLootData = lootData.dataForEntry(block.getItem());
+                Set<LootData.BlockLootData> blockLootData = lootData.dataForEntry(Holder.direct(block.getItem()));
                 this.addMissingLoot(dropStacks, tooltipLines, block, blockLootData, genBlockStacks);
             }
             List<List<ItemStack>> outputStacks = new ArrayList<>();
@@ -118,7 +120,7 @@ public class JEIWorldGenCategory implements IRecipeCategory<WorldGenTypeHelper> 
     private void addMissingLoot(List<ItemStack> dropStackList, List<List<Component>> tooltipLines, ItemStack block, Set<LootData.BlockLootData> lootData, List<ItemStack> genBlockStacks){
         for(LootData.BlockLootData data : lootData){
             if(data instanceof LootData.ItemDropData itemData){
-                ItemStack stack = itemData.dropItem.getItem().getDefaultInstance();
+                ItemStack stack = itemData.dropItem.create();
                 boolean contained = false;
                 for(ItemStack existingStack : dropStackList){
                     if(ItemStack.isSameItemSameComponents(existingStack, stack)){
