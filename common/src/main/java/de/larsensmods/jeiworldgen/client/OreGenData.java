@@ -130,7 +130,7 @@ public class OreGenData {
         public void writeTo(FriendlyByteBuf byteBuf){
             byteBuf.writeInt(targets.size());
             for(ItemStack target : targets){
-                byteBuf.writeJsonWithCodec(ItemStack.CODEC, target);
+                byteBuf.writeJsonWithCodec(ItemStack.OPTIONAL_CODEC, target);
             }
             byteBuf.writeInt(size);
             if(countPlacement != null) {
@@ -147,7 +147,7 @@ public class OreGenData {
             int targetSize = byteBuf.readInt();
             Set<ItemStack> targets = new HashSet<>();
             for (int i = 0; i < targetSize; i++){
-                targets.add(byteBuf.readJsonWithCodec(ItemStack.CODEC));
+                targets.add(byteBuf.readJsonWithCodec(ItemStack.OPTIONAL_CODEC));
             }
             int size = byteBuf.readInt();
             CountPlacement countPlacement = null;

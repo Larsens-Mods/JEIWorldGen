@@ -86,7 +86,7 @@ public class LootData {
         @Override
         void writeTo(FriendlyByteBuf byteBuf) {
             byteBuf.writeInt(0);
-            byteBuf.writeJsonWithCodec(ItemStack.CODEC, dropItem);
+            byteBuf.writeJsonWithCodec(ItemStack.OPTIONAL_CODEC, dropItem);
             byteBuf.writeBoolean(affectedByFortune);
             byteBuf.writeBoolean(silkTouchOnly);
             byteBuf.writeInt(minCount);
@@ -94,7 +94,7 @@ public class LootData {
         }
 
         static ItemDropData readFrom(FriendlyByteBuf byteBuf){
-            ItemDropData data = new ItemDropData(byteBuf.readJsonWithCodec(ItemStack.CODEC));
+            ItemDropData data = new ItemDropData(byteBuf.readJsonWithCodec(ItemStack.OPTIONAL_CODEC));
             data.affectedByFortune = byteBuf.readBoolean();
             data.silkTouchOnly = byteBuf.readBoolean();
             data.minCount = byteBuf.readInt();
