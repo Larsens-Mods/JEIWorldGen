@@ -79,9 +79,23 @@ public class WorldGenTypeHelper implements IRecipeCategoryExtension<WorldGenType
             Set<ResourceLocation> biomes = dataBiomes.get(i);
             JEIWorldGenMod.LOGGER.debug("Found ore gen data set for {} biomes: {}", biomes.size(), String.join(", ", biomes.stream().map(ResourceLocation::toString).toList()));
 
+            Set<ItemStack> shownTargets = new HashSet<>();
+            for(ItemStack stack : oreData.getTargets()){
+                if(!Set.of(ConfigManager.getConfig().hiddenBlocks()).contains(stack.getItemHolder().getRegisteredName())){
+                    shownTargets.add(stack);
+                }else{
+                    JEIWorldGenMod.LOGGER.info("Excluding {} from display, because its hidden in the config", stack.getItemHolder().getRegisteredName());
+                }
+            }
+
+            if(shownTargets.isEmpty()){
+                JEIWorldGenMod.LOGGER.debug("Skipping empty entry");
+                continue;
+            }
+
             ResourceLocation sampleBiome = biomes.stream().toList().getFirst();
 
-            WorldGenTypeHelper entry = new WorldGenTypeHelper(biomes, oreData.getTargets());
+            WorldGenTypeHelper entry = new WorldGenTypeHelper(biomes, shownTargets);
 
             float multiplier = 1;
             if(oreData.getCountPlacement() != null){
