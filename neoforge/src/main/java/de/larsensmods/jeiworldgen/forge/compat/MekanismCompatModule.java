@@ -5,7 +5,6 @@ import de.larsensmods.jeiworldgen.client.OreGenData;
 import de.larsensmods.jeiworldgen.compat.ICompatModule;
 import de.larsensmods.jeiworldgen.forge.mixin.ConfigurableHeightProviderAccessor;
 import de.larsensmods.jeiworldgen.mixin.HeightRangePlacementAccessor;
-import mekanism.common.registries.MekanismHeightProviderTypes;
 import mekanism.common.world.ResizableOreFeatureConfig;
 import mekanism.common.world.height.ConfigurableHeightProvider;
 import mekanism.common.world.height.ConfigurableHeightRange;
@@ -57,8 +56,7 @@ public class MekanismCompatModule implements ICompatModule {
 
                 if(heightModifier != null){
                     HeightProvider original = ((HeightRangePlacementAccessor) heightModifier).jeiwg$height();
-                    if(original.getType().equals(MekanismHeightProviderTypes.CONFIGURABLE.get())){
-                        ConfigurableHeightProvider mekanismProvider = (ConfigurableHeightProvider) original;
+                    if(original instanceof ConfigurableHeightProvider mekanismProvider){
                         ConfigurableHeightRange mekanismRange = ((ConfigurableHeightProviderAccessor) mekanismProvider).jeiwg$range();
 
                         HeightShape shape = mekanismRange.shape().get();
