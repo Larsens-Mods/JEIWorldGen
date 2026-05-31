@@ -29,7 +29,7 @@ import static de.larsensmods.jeiworldgen.jei.JEIWorldGenCategory.COORDS_SIZE_Y;
 
 public class WorldGenTypeHelper implements IRecipeCategoryExtension {
 
-    private static final Set<ResourceLocation> NON_OVERWORLD_BIOMES = Set.of(
+    public static final Set<ResourceLocation> NON_OVERWORLD_BIOMES = Set.of(
             Biomes.NETHER_WASTES.location(),
             Biomes.SOUL_SAND_VALLEY.location(),
             Biomes.CRIMSON_FOREST.location(),
@@ -79,9 +79,23 @@ public class WorldGenTypeHelper implements IRecipeCategoryExtension {
             Set<ResourceLocation> biomes = dataBiomes.get(i);
             JEIWorldGenMod.LOGGER.debug("Found ore gen data set for {} biomes: {}", biomes.size(), String.join(", ", biomes.stream().map(ResourceLocation::toString).toList()));
 
+            Set<ItemStack> shownTargets = new HashSet<>();
+            for(ItemStack stack : oreData.getTargets()){
+                if(!Set.of(ConfigManager.getConfig().hiddenBlocks()).contains(stack.getItemHolder().getRegisteredName())){
+                    shownTargets.add(stack);
+                }else{
+                    JEIWorldGenMod.LOGGER.info("Excluding {} from display, because its hidden in the config", stack.getItemHolder().getRegisteredName());
+                }
+            }
+
+            if(shownTargets.isEmpty()){
+                JEIWorldGenMod.LOGGER.debug("Skipping empty entry");
+                continue;
+            }
+
             ResourceLocation sampleBiome = biomes.stream().toList().get(0);
 
-            WorldGenTypeHelper entry = new WorldGenTypeHelper(biomes, oreData.getTargets());
+            WorldGenTypeHelper entry = new WorldGenTypeHelper(biomes, shownTargets);
 
             float multiplier = 1;
             if(oreData.getCountPlacement() != null){
@@ -149,7 +163,7 @@ public class WorldGenTypeHelper implements IRecipeCategoryExtension {
 
                 JEIWorldGenMod.LOGGER.info("Has WEIGHTED_LIST"); //TODO: UNUSED BY VANILLA, maybe by other mods
             }else{
-                JEIWorldGenMod.LOGGER.error("Encountered unknown HeightProviderType, assuming inequality");
+                JEIWorldGenMod.LOGGER.error("Encountered unknown HeightProviderType '{}'", heightProvider.getType().getClass().getSimpleName());
                 continue;
             }
             
