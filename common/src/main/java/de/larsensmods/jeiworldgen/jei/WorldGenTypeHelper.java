@@ -265,7 +265,11 @@ public class WorldGenTypeHelper implements IRecipeCategoryExtension<WorldGenType
         for(int y = this.minY; y < this.maxY; y++){
             int drawHeight = this.drawHeights[y - this.minY];
             if(drawHeight > 0){
-                RenderUtils.drawLine(guiGraphics, (int) Math.round(fromWorldHeight(y)), COORDS_BASE_Y - drawHeight, (int) Math.round(fromWorldHeight(y)), COORDS_BASE_Y, 0xFFFF0000);
+                if(drawHeight > COORDS_SIZE_Y){
+                    RenderUtils.drawLine(guiGraphics, (int) Math.round(fromWorldHeight(y)), COORDS_BASE_Y - COORDS_SIZE_Y, (int) Math.round(fromWorldHeight(y)), COORDS_BASE_Y, 0xFFFF9900);
+                }else {
+                    RenderUtils.drawLine(guiGraphics, (int) Math.round(fromWorldHeight(y)), COORDS_BASE_Y - drawHeight, (int) Math.round(fromWorldHeight(y)), COORDS_BASE_Y, 0xFFFF0000);
+                }
             }
         }
     }
