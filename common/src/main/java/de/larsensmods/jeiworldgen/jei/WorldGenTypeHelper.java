@@ -17,7 +17,6 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
 import net.minecraft.util.ARGB;
 import net.minecraft.util.valueproviders.IntProvider;
-import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.ItemStackTemplate;
 import net.minecraft.world.level.biome.Biomes;
 import net.minecraft.world.level.levelgen.heightproviders.*;
@@ -31,7 +30,7 @@ import static de.larsensmods.jeiworldgen.jei.JEIWorldGenCategory.COORDS_SIZE_Y;
 
 public class WorldGenTypeHelper implements IRecipeCategoryExtension<WorldGenTypeHelper> {
 
-    private static final Set<Identifier> NON_OVERWORLD_BIOMES = Set.of(
+    public static final Set<Identifier> NON_OVERWORLD_BIOMES = Set.of(
             Biomes.NETHER_WASTES.identifier(),
             Biomes.SOUL_SAND_VALLEY.identifier(),
             Biomes.CRIMSON_FOREST.identifier(),
@@ -151,7 +150,7 @@ public class WorldGenTypeHelper implements IRecipeCategoryExtension<WorldGenType
 
                 JEIWorldGenMod.LOGGER.info("Has WEIGHTED_LIST"); //TODO: UNUSED BY VANILLA, maybe by other mods
             }else{
-                JEIWorldGenMod.LOGGER.error("Encountered unknown HeightProviderType, assuming inequality");
+                JEIWorldGenMod.LOGGER.error("Encountered unknown HeightProviderType '{}'", heightProvider.getType().getClass().getSimpleName());
                 continue;
             }
             

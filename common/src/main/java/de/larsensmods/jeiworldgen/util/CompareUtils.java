@@ -125,7 +125,7 @@ public class CompareUtils {
                 WeightedListHeight bHeight = (WeightedListHeight) bProvider;
                 return aHeight.equals(bHeight); //TODO: Maybe change if relevant
             }else{
-                JEIWorldGenMod.LOGGER.error("Encountered unknown HeightProviderType, assuming inequality");
+                JEIWorldGenMod.LOGGER.error("Encountered unknown HeightProviderType '{}', assuming inequality", aProvider.getType().getClass().getSimpleName());
                 return false;
             }
         }

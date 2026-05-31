@@ -15,6 +15,8 @@ import net.neoforged.neoforge.network.event.RegisterConfigurationTasksEvent;
 import net.neoforged.neoforge.network.event.RegisterPayloadHandlersEvent;
 import net.neoforged.neoforge.network.registration.PayloadRegistrar;
 
+import java.util.Set;
+
 @Mod(JEIWorldGenMod.MOD_ID)
 public final class JEIWorldGenModForge {
 
@@ -24,7 +26,7 @@ public final class JEIWorldGenModForge {
         //ModLoadingContext.get().registerDisplayTest(new IExtensionPoint.DisplayTest(() -> NetworkConstants.IGNORESERVERONLY, (a, b) -> true));
 
         networkHandler = new ServerNetworkHandler();
-        JEIWorldGenMod.init(networkHandler);
+        JEIWorldGenMod.init(networkHandler, Set.of());
     }
 
     @EventBusSubscriber
@@ -35,7 +37,7 @@ public final class JEIWorldGenModForge {
         @SubscribeEvent
         public static void onServerStarted(ServerStartedEvent event) {
             if(!loaded) {
-                event.getServer().registryAccess().lookup(Registries.BIOME).ifPresent(JEIWorldGenMod::buildBiomeData);
+                event.getServer().registryAccess().lookup(Registries.BIOME).ifPresent(registry -> JEIWorldGenMod.buildBiomeData(registry, event.getServer()));
                 JEIWorldGenMod.buildLootData(event.getServer().reloadableRegistries());
                 loaded = true;
             }
