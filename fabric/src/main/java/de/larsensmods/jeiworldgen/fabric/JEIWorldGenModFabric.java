@@ -10,6 +10,8 @@ import net.minecraft.core.registries.Registries;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 
+import java.util.Set;
+
 public final class JEIWorldGenModFabric implements ModInitializer {
 
     @Override
@@ -18,7 +20,7 @@ public final class JEIWorldGenModFabric implements ModInitializer {
 
         ServerLoginConnectionEvents.QUERY_START.register(networkHandler::sendWorldGenInfo);
 
-        JEIWorldGenMod.init(networkHandler, new FabricMixinFixWrapper());
+        JEIWorldGenMod.init(networkHandler, new FabricMixinFixWrapper(), Set.of());
 
         ServerWorldEvents.LOAD.register(new ServerWorldEvents.Load() {
             boolean loaded = false;
@@ -26,7 +28,7 @@ public final class JEIWorldGenModFabric implements ModInitializer {
             @Override
             public void onWorldLoad(MinecraftServer server, ServerLevel world) {
                 if(!loaded) {
-                    world.registryAccess().registry(Registries.BIOME).ifPresent(JEIWorldGenMod::buildBiomeData);
+                    world.registryAccess().registry(Registries.BIOME).ifPresent(registry -> JEIWorldGenMod.buildBiomeData(registry, server));
                     JEIWorldGenMod.buildLootData(server.getLootData());
                     loaded = true;
                 }

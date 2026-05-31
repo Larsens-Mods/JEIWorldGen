@@ -1,6 +1,7 @@
 package de.larsensmods.jeiworldgen;
 
 import de.larsensmods.jeiworldgen.client.LootData;
+import de.larsensmods.jeiworldgen.compat.ICompatModule;
 import de.larsensmods.jeiworldgen.mixin.*;
 import de.larsensmods.jeiworldgen.networking.INetworkHandler;
 import de.larsensmods.jeiworldgen.networking.LootInfo;
@@ -11,6 +12,7 @@ import de.larsensmods.jeiworldgen.util.OreGenDataBuilder;
 import net.minecraft.core.HolderSet;
 import net.minecraft.core.Registry;
 import net.minecraft.resources.ResourceKey;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.levelgen.GenerationStep;
 import net.minecraft.world.level.levelgen.placement.PlacedFeature;
@@ -27,16 +29,18 @@ public final class JEIWorldGenMod {
     private static MixinFixWrapper FIX_WRAPPER = null;
 
     private static INetworkHandler networkHandler;
+    private static Set<ICompatModule> compatModules;
 
     private static WorldGenInfo wgInfo = null;
 
-    public static void init(INetworkHandler netHandler, MixinFixWrapper fixWrapper) {
+    public static void init(INetworkHandler netHandler, MixinFixWrapper fixWrapper, Set<ICompatModule> compatibilityModules) {
         FIX_WRAPPER = fixWrapper;
 
         networkHandler = netHandler;
+        compatModules = compatibilityModules;
     }
 
-    public static void buildBiomeData(Registry<Biome> biomeRegistry){
+    public static void buildBiomeData(Registry<Biome> biomeRegistry, MinecraftServer minecraftServer) {
         Map<ResourceKey<Biome>, HolderSet<PlacedFeature>> biomeOreFeatures = new HashMap<>();
         Map<ResourceKey<Biome>, HolderSet<PlacedFeature>> biomeDecoFeatures = new HashMap<>();
 
@@ -49,7 +53,7 @@ public final class JEIWorldGenMod {
             }
         });
 
-        wgInfo = new WorldGenInfo(OreGenDataBuilder.fromRaw(biomeOreFeatures, biomeDecoFeatures));
+        wgInfo = new WorldGenInfo(OreGenDataBuilder.fromRaw(biomeOreFeatures, biomeDecoFeatures, compatModules, minecraftServer));
 
         LOGGER.info("Built biome data");
     }

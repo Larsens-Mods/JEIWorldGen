@@ -35,3 +35,9 @@ versionRange = "[15.20.0.106,)"
 ordering = "NONE"
 side = "BOTH"
 
+[[dependencies.jeiworldgen]]
+modId = "mekanism"
+mandatory = false
+versionRange = "[1.20.1-10.4.15.75,)"
+ordering = "AFTER"
+side = "BOTH"

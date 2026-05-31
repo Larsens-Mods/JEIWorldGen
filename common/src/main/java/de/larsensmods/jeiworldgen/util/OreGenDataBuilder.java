@@ -2,9 +2,11 @@ package de.larsensmods.jeiworldgen.util;
 
 import de.larsensmods.jeiworldgen.JEIWorldGenMod;
 import de.larsensmods.jeiworldgen.client.OreGenData;
+import de.larsensmods.jeiworldgen.compat.ICompatModule;
 import net.minecraft.core.Holder;
 import net.minecraft.core.HolderSet;
 import net.minecraft.resources.ResourceKey;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.levelgen.feature.ConfiguredFeature;
@@ -19,7 +21,7 @@ import java.util.Set;
 
 public class OreGenDataBuilder {
 
-    public static OreGenData fromRaw(Map<ResourceKey<Biome>, HolderSet<PlacedFeature>> biomeOreFeatures, Map<ResourceKey<Biome>, HolderSet<PlacedFeature>> biomeDecoFeatures){
+    public static OreGenData fromRaw(Map<ResourceKey<Biome>, HolderSet<PlacedFeature>> biomeOreFeatures, Map<ResourceKey<Biome>, HolderSet<PlacedFeature>> biomeDecoFeatures, Set<ICompatModule> compatModules, MinecraftServer minecraftServer) {
         OreGenData data = new OreGenData();
 
         Set<ResourceKey<Biome>> mergedBiomeSet = new HashSet<>();
@@ -67,6 +69,12 @@ public class OreGenDataBuilder {
                             JEIWorldGenMod.LOGGER.info(" - Modifier: {} with type {}", mod, mod.type());
                         }
                     }
+                }
+            }
+
+            for(ICompatModule compatModule : compatModules){
+                for(OreGenData.OreData compatData : compatModule.processBiome(biome, mergedHolderSet, minecraftServer)){
+                    biomeData.addOreData(compatData);
                 }
             }
 

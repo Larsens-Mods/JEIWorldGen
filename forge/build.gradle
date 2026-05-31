@@ -6,6 +6,8 @@ loom {
     forge {
         mixinConfig "jeiworldgen.mixins.json"
         mixinConfig "jeiworldgen.forge.mixins.json"
+
+        mixinConfig "jeiworldgen.mekacompat.mixins.json"
     }
 }
 
@@ -31,11 +33,21 @@ configurations {
     }
 }
 
+repositories {
+    maven {
+        name = 'ModMaven'
+        url = 'https://modmaven.dev/'
+    }
+}
+
 dependencies {
     forge "net.minecraftforge:forge:$rootProject.forge_version"
 
     modCompileOnlyApi "mezz.jei:jei-$rootProject.minecraft_version-forge-api:$rootProject.jei_version"
     modRuntimeOnly "mezz.jei:jei-$rootProject.minecraft_version-forge:$rootProject.jei_version"
+
+    modCompileOnly "mekanism:Mekanism:$rootProject.mekanism_version"
+    modRuntimeOnly "mekanism:Mekanism:$rootProject.mekanism_version"
 
     common(project(path: ':common', configuration: 'namedElements')) { transitive false }
     shadowBundle project(path: ':common', configuration: 'transformProductionForge')
