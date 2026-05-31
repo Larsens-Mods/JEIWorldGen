@@ -29,7 +29,7 @@ import static de.larsensmods.jeiworldgen.jei.JEIWorldGenCategory.COORDS_SIZE_Y;
 
 public class WorldGenTypeHelper implements IRecipeCategoryExtension<WorldGenTypeHelper> {
 
-    private static final Set<ResourceLocation> NON_OVERWORLD_BIOMES = Set.of(
+    public static final Set<ResourceLocation> NON_OVERWORLD_BIOMES = Set.of(
             Biomes.NETHER_WASTES.location(),
             Biomes.SOUL_SAND_VALLEY.location(),
             Biomes.CRIMSON_FOREST.location(),
@@ -149,7 +149,7 @@ public class WorldGenTypeHelper implements IRecipeCategoryExtension<WorldGenType
 
                 JEIWorldGenMod.LOGGER.info("Has WEIGHTED_LIST"); //TODO: UNUSED BY VANILLA, maybe by other mods
             }else{
-                JEIWorldGenMod.LOGGER.error("Encountered unknown HeightProviderType, assuming inequality");
+                JEIWorldGenMod.LOGGER.error("Encountered unknown HeightProviderType '{}'", heightProvider.getType().getClass().getSimpleName());
                 continue;
             }
             

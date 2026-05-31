@@ -1,6 +1,7 @@
 package de.larsensmods.jeiworldgen;
 
 import de.larsensmods.jeiworldgen.client.LootData;
+import de.larsensmods.jeiworldgen.compat.ICompatModule;
 import de.larsensmods.jeiworldgen.mixin.*;
 import de.larsensmods.jeiworldgen.networking.INetworkHandler;
 import de.larsensmods.jeiworldgen.networking.LootInfo;
@@ -10,6 +11,7 @@ import de.larsensmods.jeiworldgen.util.OreGenDataBuilder;
 import net.minecraft.core.HolderSet;
 import net.minecraft.core.Registry;
 import net.minecraft.resources.ResourceKey;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.ReloadableServerRegistries;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.levelgen.GenerationStep;
@@ -24,14 +26,16 @@ public final class JEIWorldGenMod {
     public static final Logger LOGGER = LoggerFactory.getLogger(MOD_ID);
 
     private static INetworkHandler networkHandler;
+    private static Set<ICompatModule> compatModules;
 
     private static WorldGenInfo wgInfo = null;
 
-    public static void init(INetworkHandler netHandler) {
+    public static void init(INetworkHandler netHandler, Set<ICompatModule> compatibilityModules) {
         networkHandler = netHandler;
+        compatModules = compatibilityModules;
     }
 
-    public static void buildBiomeData(Registry<Biome> biomeRegistry){
+    public static void buildBiomeData(Registry<Biome> biomeRegistry, MinecraftServer minecraftServer) {
         Map<ResourceKey<Biome>, HolderSet<PlacedFeature>> biomeOreFeatures = new HashMap<>();
         Map<ResourceKey<Biome>, HolderSet<PlacedFeature>> biomeDecoFeatures = new HashMap<>();
 
@@ -44,7 +48,7 @@ public final class JEIWorldGenMod {
             }
         });
 
-        wgInfo = new WorldGenInfo(OreGenDataBuilder.fromRaw(biomeOreFeatures, biomeDecoFeatures));
+        wgInfo = new WorldGenInfo(OreGenDataBuilder.fromRaw(biomeOreFeatures, biomeDecoFeatures, compatModules, minecraftServer));
 
         LOGGER.info("Built biome data");
     }

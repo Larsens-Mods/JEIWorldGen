@@ -2,11 +2,16 @@ package de.larsensmods.jeiworldgen.forge;
 
 import de.larsensmods.jeiworldgen.JEIWorldGenMod;
 import de.larsensmods.jeiworldgen.client.ClientDataStore;
+import de.larsensmods.jeiworldgen.compat.ICompatModule;
+import de.larsensmods.jeiworldgen.forge.compat.MekanismCompatModule;
 import de.larsensmods.jeiworldgen.forge.networking.*;
 import de.larsensmods.jeiworldgen.networking.Channels;
+import mekanism.common.world.height.ConfigurableHeightRange;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.level.Level;
 import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.ModList;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.fml.common.Mod;
 import net.neoforged.neoforge.event.entity.player.PlayerEvent;
@@ -14,6 +19,9 @@ import net.neoforged.neoforge.event.server.ServerStartedEvent;
 import net.neoforged.neoforge.network.event.RegisterConfigurationTasksEvent;
 import net.neoforged.neoforge.network.event.RegisterPayloadHandlersEvent;
 import net.neoforged.neoforge.network.registration.PayloadRegistrar;
+
+import java.util.HashSet;
+import java.util.Set;
 
 @Mod(JEIWorldGenMod.MOD_ID)
 public final class JEIWorldGenModForge {
@@ -23,8 +31,15 @@ public final class JEIWorldGenModForge {
     public JEIWorldGenModForge() {
         //ModLoadingContext.get().registerDisplayTest(new IExtensionPoint.DisplayTest(() -> NetworkConstants.IGNORESERVERONLY, (a, b) -> true));
 
+        Set<ICompatModule> compatModules = new HashSet<>();
+
+        if(ModList.get().isLoaded("mekanism")) {
+            JEIWorldGenMod.LOGGER.info("Detected Mekanism, loading compat module");
+            compatModules.add(new MekanismCompatModule());
+        }
+
         networkHandler = new ServerNetworkHandler();
-        JEIWorldGenMod.init(networkHandler);
+        JEIWorldGenMod.init(networkHandler, compatModules);
     }
 
     @EventBusSubscriber(bus = EventBusSubscriber.Bus.GAME)
@@ -35,7 +50,7 @@ public final class JEIWorldGenModForge {
         @SubscribeEvent
         public static void onServerStarted(ServerStartedEvent event) {
             if(!loaded) {
-                event.getServer().registryAccess().registry(Registries.BIOME).ifPresent(JEIWorldGenMod::buildBiomeData);
+                event.getServer().registryAccess().registry(Registries.BIOME).ifPresent(registry -> JEIWorldGenMod.buildBiomeData(registry, event.getServer()));
                 JEIWorldGenMod.buildLootData(event.getServer().reloadableRegistries());
                 loaded = true;
             }

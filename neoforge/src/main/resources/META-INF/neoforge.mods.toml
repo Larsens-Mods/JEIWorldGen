@@ -35,5 +35,16 @@ versionRange = "[19.25.1.326,)"
 ordering = "NONE"
 side = "CLIENT"
 
+[[dependencies.jeiworldgen]]
+modId = "mekanism"
+type = "optional"
+versionRange = "[1.21.1-10.7.9.72,)"
+ordering = "AFTER"
+side = "BOTH"
+
 [[mixins]]
 config = "jeiworldgen.mixins.json"
+
+[[mixins]]
+config = "jeiworldgen.mekacompat.mixins.json"
+requiredMods = [ "mekanism" ]
