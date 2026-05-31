@@ -13,7 +13,9 @@ import mezz.jei.api.recipe.RecipeType;
 import mezz.jei.api.recipe.category.extensions.IRecipeCategoryExtension;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.valueproviders.IntProvider;
 import net.minecraft.world.item.ItemStack;
@@ -81,10 +83,10 @@ public class WorldGenTypeHelper implements IRecipeCategoryExtension {
 
             Set<ItemStack> shownTargets = new HashSet<>();
             for(ItemStack stack : oreData.getTargets()){
-                if(!Set.of(ConfigManager.getConfig().hiddenBlocks()).contains(stack.getItemHolder().getRegisteredName())){
+                if(!Set.of(ConfigManager.getConfig().hiddenBlocks()).contains(stack.getItemHolder().unwrapKey().orElseGet(() -> ResourceKey.create(Registries.ITEM, new ResourceLocation("air"))).location().toString())){
                     shownTargets.add(stack);
                 }else{
-                    JEIWorldGenMod.LOGGER.info("Excluding {} from display, because its hidden in the config", stack.getItemHolder().getRegisteredName());
+                    JEIWorldGenMod.LOGGER.info("Excluding {} from display, because its hidden in the config", stack.getItemHolder().unwrapKey().orElseGet(() -> ResourceKey.create(Registries.ITEM, new ResourceLocation("air"))).location());
                 }
             }
 
