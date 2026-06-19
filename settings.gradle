@@ -22,6 +22,7 @@ plugins {
 
 rootProject.name = 'jeiworldgen'
 
+includeBuild('build-logic')
 include('common')
 include('fabric')
 include('neoforge')
