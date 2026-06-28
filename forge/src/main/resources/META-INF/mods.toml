@@ -36,6 +36,13 @@ ordering = "NONE"
 side = "BOTH"
 
 [[dependencies.jeiworldgen]]
+modId = "roughlyenoughitems"
+mandatory = false
+versionRange = "[Customize Toolbar…,)"
+ordering = "NONE"
+side = "BOTH"
+
+[[dependencies.jeiworldgen]]
 modId = "mekanism"
 mandatory = false
 versionRange = "[1.20.1-10.4.15.75,)"

@@ -1,5 +1,5 @@
 plugins {
-    id 'com.github.johnrengelman.shadow'
+    id 'com.gradleup.shadow'
 }
 
 loom {
@@ -45,6 +45,10 @@ dependencies {
 
     modCompileOnlyApi "mezz.jei:jei-$rootProject.minecraft_version-forge-api:$rootProject.jei_version"
     modRuntimeOnly "mezz.jei:jei-$rootProject.minecraft_version-forge:$rootProject.jei_version"
+
+    modCompileOnlyApi "dev.architectury:architectury-forge:$rootProject.architectury_version"
+    modCompileOnlyApi "me.shedaniel:RoughlyEnoughItems-api-forge:$rootProject.rei_version"
+    modRuntimeOnly "me.shedaniel:RoughlyEnoughItems-forge:$rootProject.rei_version"
 
     modCompileOnly "mekanism:Mekanism:$rootProject.mekanism_version"
     modRuntimeOnly "mekanism:Mekanism:$rootProject.mekanism_version"
