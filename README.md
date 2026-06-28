@@ -1,5 +1,5 @@
 # JEI WorldGen
-JEI WorldGen is an addon mod for Just Enough Items (JEI) that adds information on ore generation in the world in a very complete and compatible way.
+JEI WorldGen is an addon mod for Just Enough Items (JEI) and Roughly Enough Items (REI) that adds information on ore generation in the world in a very complete and compatible way.
 
 ## Download
 You can download JEI WorldGen from the following links:
@@ -9,6 +9,10 @@ You can download JEI WorldGen from the following links:
 On your client you need to additionally install Just Enough Items (JEI):
  - [Modrinth](https://modrinth.com/mod/jei)
  - [CurseForge](https://www.curseforge.com/minecraft/mc-mods/jei)
+
+Or alternatively Roughly Enough Items (REI):
+- [Modrinth](https://modrinth.com/mod/rei)
+- [CurseForge](https://www.curseforge.com/minecraft/mc-mods/roughly-enough-items)
 
 If you use the Fabric version of JEI WorldGen, you also need to install FabricAPI:
  - [Modrinth](https://modrinth.com/mod/fabric-api)
@@ -31,7 +35,7 @@ If both of these requirements are met, JEI WorldGen will be able to show the ore
 
 ## Multiplayer and Servers
 As JEI WorldGen reads the ore generation information directly from the biome data and those data is only available on the server side,
-it is recommended to install JEI WorldGen on the server as well. You do not need to install JEI itself on the server.
+it is recommended to install JEI WorldGen on the server as well.
 
 If you cannot install JEI WorldGen on the server, the information can not be received from the server, so the client will not show any WorldGen information.
 You can however join a singleplayer save before joining the server; in this case JEI WorldGen will keep the cached information from the singleplayer save and show it while you are on the server.
