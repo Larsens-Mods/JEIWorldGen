@@ -63,4 +63,8 @@ sourceSets.configureEach {
 dependencies {
     compileOnlyApi "mezz.jei:jei-$rootProject.minecraft_version-neoforge-api:$rootProject.jei_version"
     runtimeOnly "mezz.jei:jei-$rootProject.minecraft_version-neoforge:$rootProject.jei_version"
+
+    compileOnlyApi "dev.architectury:architectury-neoforge:$rootProject.architectury_version"
+    compileOnlyApi "me.shedaniel:RoughlyEnoughItems-api-neoforge:$rootProject.rei_version"
+    runtimeOnly "me.shedaniel:RoughlyEnoughItems-neoforge:$rootProject.rei_version"
 }
