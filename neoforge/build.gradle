@@ -1,5 +1,5 @@
 plugins {
-    id 'com.github.johnrengelman.shadow'
+    id 'com.gradleup.shadow'
 }
 
 architectury {
@@ -40,6 +40,10 @@ dependencies {
 
     modCompileOnlyApi "mezz.jei:jei-$rootProject.minecraft_version-neoforge-api:$rootProject.jei_version"
     modRuntimeOnly "mezz.jei:jei-$rootProject.minecraft_version-neoforge:$rootProject.jei_version"
+
+    modCompileOnlyApi "dev.architectury:architectury-neoforge:$rootProject.architectury_version"
+    modCompileOnlyApi "me.shedaniel:RoughlyEnoughItems-api-neoforge:$rootProject.rei_version"
+    modRuntimeOnly "me.shedaniel:RoughlyEnoughItems-neoforge:$rootProject.rei_version"
 
     modCompileOnly "mekanism:Mekanism:$rootProject.mekanism_version"
     modRuntimeOnly "mekanism:Mekanism:$rootProject.mekanism_version"

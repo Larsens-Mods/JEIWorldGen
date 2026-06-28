@@ -10,4 +10,6 @@ dependencies {
 
     compileOnly "mezz.jei:jei-$rootProject.minecraft_version-common-api:$rootProject.jei_version"
 
+    modCompileOnly "dev.architectury:architectury:$rootProject.architectury_version"
+    modCompileOnly "me.shedaniel:RoughlyEnoughItems-api:$rootProject.rei_version"
 }
