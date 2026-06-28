@@ -22,6 +22,9 @@
     ],
     "jei_mod_plugin": [
       "de.larsensmods.jeiworldgen.jei.JEIWGPlugin"
+    ],
+    "rei_client": [
+      "de.larsensmods.jeiworldgen.rei.REIWGPlugin"
     ]
   },
   "mixins": [
@@ -34,6 +37,7 @@
     "java": ">=${java_version}"
   },
   "suggests": {
-    "jei": ">=19.25.1.326"
+    "jei": ">=${jei_version}",
+    "roughlyenoughitems": ">=${rei_version}"
   }
 }

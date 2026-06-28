@@ -14,6 +14,9 @@ WorldGen Info Pages for JustEnoughItems (JEI)
 logoFile = "icon.png"
 displayTest = "NONE"
 
+[[mixins]]
+config = "jeiworldgen.mixins.json"
+
 [[dependencies.jeiworldgen]]
 modId = "neoforge"
 type = "required"
@@ -35,5 +38,9 @@ versionRange = "[${jei_version},)"
 ordering = "NONE"
 side = "CLIENT"
 
-[[mixins]]
-config = "jeiworldgen.mixins.json"
+[[dependencies.jeiworldgen]]
+modId = "roughlyenoughitems"
+type = "optional"
+versionRange = "[${rei_version},)"
+ordering = "NONE"
+side = "CLIENT"
