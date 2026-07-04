@@ -45,6 +45,9 @@ dependencies {
     modCompileOnlyApi "me.shedaniel:RoughlyEnoughItems-api-neoforge:$rootProject.rei_version"
     modRuntimeOnly "me.shedaniel:RoughlyEnoughItems-neoforge:$rootProject.rei_version"
 
+    modCompileOnly("dev.emi:emi-neoforge:$rootProject.emi_version:api")
+    modLocalRuntime("dev.emi:emi-neoforge:$rootProject.emi_version")
+
     modCompileOnly "mekanism:Mekanism:$rootProject.mekanism_version"
     modRuntimeOnly "mekanism:Mekanism:$rootProject.mekanism_version"
 

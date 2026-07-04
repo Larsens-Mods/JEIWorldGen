@@ -25,6 +25,9 @@
     ],
     "rei_client": [
       "de.larsensmods.jeiworldgen.rei.REIWGPlugin"
+    ],
+    "emi": [
+      "de.larsensmods.jeiworldgen.emi.EMIWGPlugin"
     ]
   },
   "mixins": [
