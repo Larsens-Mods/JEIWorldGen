@@ -12,4 +12,6 @@ dependencies {
 
     modCompileOnly "dev.architectury:architectury:$rootProject.architectury_version"
     modCompileOnly "me.shedaniel:RoughlyEnoughItems-api:$rootProject.rei_version"
+
+    modCompileOnly "dev.emi:emi-xplat-intermediary:$rootProject.emi_version:api"
 }
