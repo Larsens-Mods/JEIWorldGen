@@ -1,5 +1,5 @@
 # JEI WorldGen
-JEI WorldGen is an addon mod for Just Enough Items (JEI) and Roughly Enough Items (REI) that adds information on ore generation in the world in a very complete and compatible way.
+JEI WorldGen is an addon mod for Just Enough Items (JEI), Roughly Enough Items (REI) and EMI that adds information on ore generation in the world in a very complete and compatible way.
 
 ## Download
 You can download JEI WorldGen from the following links:
@@ -13,6 +13,10 @@ On your client you need to additionally install Just Enough Items (JEI):
 Or alternatively Roughly Enough Items (REI):
 - [Modrinth](https://modrinth.com/mod/rei)
 - [CurseForge](https://www.curseforge.com/minecraft/mc-mods/roughly-enough-items)
+
+Or alternatively EMI:
+- [Modrinth](https://modrinth.com/mod/emi)
+- [CurseForge](https://www.curseforge.com/minecraft/mc-mods/emi)
 
 If you use the Fabric version of JEI WorldGen, you also need to install FabricAPI:
  - [Modrinth](https://modrinth.com/mod/fabric-api)
