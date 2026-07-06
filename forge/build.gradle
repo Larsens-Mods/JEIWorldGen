@@ -50,6 +50,9 @@ dependencies {
     modCompileOnlyApi "me.shedaniel:RoughlyEnoughItems-api-forge:$rootProject.rei_version"
     modRuntimeOnly "me.shedaniel:RoughlyEnoughItems-forge:$rootProject.rei_version"
 
+    modCompileOnly("dev.emi:emi-forge:$rootProject.emi_version:api")
+    modLocalRuntime("dev.emi:emi-forge:$rootProject.emi_version")
+
     modCompileOnly "mekanism:Mekanism:$rootProject.mekanism_version"
     modRuntimeOnly "mekanism:Mekanism:$rootProject.mekanism_version"
 
