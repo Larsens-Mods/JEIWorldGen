@@ -80,8 +80,8 @@ public class WorldGenCategory implements DisplayCategory<WorldGenTypeHelper> {
             Minecraft.getInstance().getSoundManager().play(
                     SimpleSoundInstance.forUI(SoundEvents.UI_BUTTON_CLICK, 1.0f)
             );
-            Screen currentScreen = Minecraft.getInstance().screen;
-            Minecraft.getInstance().setScreen(
+            Screen currentScreen = Minecraft.getInstance().gui.screen();
+            Minecraft.getInstance().setScreenAndShow(
                     new BiomeListScreen(display.getBiomeStrings(), currentScreen)
             );
         }));

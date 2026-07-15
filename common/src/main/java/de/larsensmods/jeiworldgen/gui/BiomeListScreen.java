@@ -58,7 +58,7 @@ public class BiomeListScreen extends Screen {
     @Override
     protected void init() {
         if(this.closed){
-            this.minecraft.setScreen(null);
+            this.minecraft.gui.setScreen(null);
             return;
         }
         closeButton = Button.builder(Component.translatable("gui.cancel"), _ -> this.onClose()).bounds(this.width / 2 - 60, this.height - 16 - 20, 120, 20).build();
@@ -142,6 +142,6 @@ public class BiomeListScreen extends Screen {
     @Override
     public void onClose() {
         this.closed = true;
-        this.minecraft.setScreen(this.parent);
+        this.minecraft.setScreenAndShow(this.parent);
     }
 }

@@ -220,8 +220,8 @@ public class JEIWorldGenCategory implements IRecipeCategory<WorldGenTypeHelper> 
                     Minecraft.getInstance().getSoundManager().play(
                             SimpleSoundInstance.forUI(SoundEvents.UI_BUTTON_CLICK, 1.0f)
                     );
-                    Screen currentScreen = Minecraft.getInstance().screen;
-                    Minecraft.getInstance().setScreen(
+                    Screen currentScreen = Minecraft.getInstance().gui.screen();
+                    Minecraft.getInstance().setScreenAndShow(
                             new BiomeListScreen(recipe.getBiomeStrings(), currentScreen)
                     );
                     return true;
