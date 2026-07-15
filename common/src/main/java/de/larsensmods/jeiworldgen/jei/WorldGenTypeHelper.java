@@ -11,9 +11,12 @@ import de.larsensmods.jeiworldgen.util.ValueHelpers;
 import mezz.jei.api.gui.builder.ITooltipBuilder;
 import mezz.jei.api.recipe.category.extensions.IRecipeCategoryExtension;
 import mezz.jei.api.recipe.types.IRecipeType;
+import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.MutableComponent;
+import net.minecraft.network.chat.TextColor;
 import net.minecraft.resources.Identifier;
 import net.minecraft.util.ARGB;
 import net.minecraft.util.valueproviders.IntProvider;
@@ -223,16 +226,23 @@ public class WorldGenTypeHelper implements IRecipeCategoryExtension<WorldGenType
     }
 
     public String getBiomeString(){
-        return getBiomeInfo().getFirst() + (biomes.size() > 1 ? " (+" + (biomes.size() - 1) + ")" : "");
+        return biomes.stream().toList().getFirst().toString() + (biomes.size() > 1 ? " (+" + (biomes.size() - 1) + ")" : "");
     }
 
-    public List<String> getBiomeInfo(){
+    public List<Identifier> getBiomeStrings(){
+        return biomes.stream().toList();
+    }
+
+    private List<MutableComponent> getBiomeInfoComponent(){
         List<String> info = biomes.stream().map(Identifier::toString).toList();
+        List<MutableComponent> components;
         if(info.size() > 5){
-            info = new ArrayList<>(info.subList(0, 5));
-            info.add(" + " + (biomes.size() - 5));
+            components = new ArrayList<>(info.subList(0, 5).stream().map(Component::literal).toList());
+            components.add(Component.translatable("jeiwg.biome_tooltip.view_more_biomes", biomes.size() - 5).withStyle(ChatFormatting.GOLD, ChatFormatting.ITALIC));
+        }else{
+            components = info.stream().map(Component::literal).toList();
         }
-        return info;
+        return components;
     }
 
     public boolean metaEquals(WorldGenTypeHelper other){
@@ -293,8 +303,8 @@ public class WorldGenTypeHelper implements IRecipeCategoryExtension<WorldGenType
                 && mouseX < 180
                 && mouseY >= 1
                 && mouseY < 9){
-            tooltip.add(Component.translatable("jeiwg.biomes"));
-            tooltip.addAll(getBiomeInfo().stream().map(Component::literal).toList());
+            tooltip.add(Component.translatable("jeiwg.biomes").withStyle(ChatFormatting.BOLD));
+            tooltip.addAll(getBiomeInfoComponent());
         }
     }
 

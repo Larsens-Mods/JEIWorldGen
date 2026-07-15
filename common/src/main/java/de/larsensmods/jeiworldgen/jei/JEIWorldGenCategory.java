@@ -1,26 +1,40 @@
 package de.larsensmods.jeiworldgen.jei;
 
+import com.mojang.blaze3d.platform.InputConstants;
 import de.larsensmods.jeiworldgen.JEIWorldGenMod;
 import de.larsensmods.jeiworldgen.client.ClientDataStore;
 import de.larsensmods.jeiworldgen.client.LootData;
 import de.larsensmods.jeiworldgen.client.utils.RenderUtils;
+import de.larsensmods.jeiworldgen.gui.BiomeListScreen;
 import mezz.jei.api.gui.builder.IRecipeLayoutBuilder;
 import mezz.jei.api.gui.builder.ITooltipBuilder;
 import mezz.jei.api.gui.drawable.IDrawable;
 import mezz.jei.api.gui.ingredient.IRecipeSlotsView;
+import mezz.jei.api.gui.inputs.IJeiInputHandler;
+import mezz.jei.api.gui.inputs.IJeiUserInput;
+import mezz.jei.api.gui.widgets.IRecipeExtrasBuilder;
 import mezz.jei.api.helpers.IJeiHelpers;
 import mezz.jei.api.recipe.IFocusGroup;
 import mezz.jei.api.recipe.category.IRecipeCategory;
 import mezz.jei.api.recipe.types.IRecipeType;
+import mezz.jei.api.runtime.IJeiKeyMappings;
+import net.minecraft.client.KeyMapping;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.client.gui.navigation.ScreenRectangle;
+import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.client.resources.sounds.SimpleSoundInstance;
 import net.minecraft.core.Holder;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
+import net.minecraft.sounds.SoundEvent;
+import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.ItemStackTemplate;
 import net.minecraft.world.item.Items;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.NonNull;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -189,5 +203,31 @@ public class JEIWorldGenCategory implements IRecipeCategory<WorldGenTypeHelper> 
     @Override
     public void getTooltip(ITooltipBuilder tooltip, WorldGenTypeHelper recipe, IRecipeSlotsView recipeSlotsView, double mouseX, double mouseY) {
         recipe.getTooltip(tooltip, recipe, mouseX, mouseY);
+    }
+
+    @Override
+    public void createRecipeExtras(IRecipeExtrasBuilder builder, WorldGenTypeHelper recipe, IFocusGroup focuses) {
+        builder.addInputHandler(new IJeiInputHandler() {
+            @Override
+            public @NonNull ScreenRectangle getArea() {
+                return new ScreenRectangle(39, 1, 180 - 39, 9 - 1);
+            }
+
+            @Override
+            public boolean handleInput(double mouseX, double mouseY, IJeiUserInput input) {
+                InputConstants.Key key = input.getKey();
+                if(input.isSimulate() && key.getType() == InputConstants.Type.MOUSE && key.getValue() == InputConstants.MOUSE_BUTTON_LEFT){
+                    Minecraft.getInstance().getSoundManager().play(
+                            SimpleSoundInstance.forUI(SoundEvents.UI_BUTTON_CLICK, 1.0f)
+                    );
+                    Screen currentScreen = Minecraft.getInstance().screen;
+                    Minecraft.getInstance().setScreen(
+                            new BiomeListScreen(recipe.getBiomeStrings(), currentScreen)
+                    );
+                    return true;
+                }
+                return false;
+            }
+        });
     }
 }
