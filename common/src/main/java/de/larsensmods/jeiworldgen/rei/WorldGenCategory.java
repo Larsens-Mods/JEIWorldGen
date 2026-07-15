@@ -3,16 +3,23 @@ package de.larsensmods.jeiworldgen.rei;
 import de.larsensmods.jeiworldgen.JEIWorldGenMod;
 import de.larsensmods.jeiworldgen.client.ClientDataStore;
 import de.larsensmods.jeiworldgen.client.LootData;
+import de.larsensmods.jeiworldgen.gui.BiomeListScreen;
 import me.shedaniel.math.Point;
 import me.shedaniel.math.Rectangle;
 import me.shedaniel.rei.api.client.gui.Renderer;
+import me.shedaniel.rei.api.client.gui.widgets.Label;
 import me.shedaniel.rei.api.client.gui.widgets.Widget;
 import me.shedaniel.rei.api.client.gui.widgets.Widgets;
 import me.shedaniel.rei.api.client.registry.display.DisplayCategory;
 import me.shedaniel.rei.api.common.category.CategoryIdentifier;
 import me.shedaniel.rei.api.common.util.EntryStacks;
+import net.minecraft.ChatFormatting;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.client.resources.sounds.SimpleSoundInstance;
 import net.minecraft.core.Holder;
 import net.minecraft.network.chat.Component;
+import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import org.jetbrains.annotations.NotNull;
@@ -20,6 +27,7 @@ import org.jetbrains.annotations.NotNull;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
+import java.util.function.Consumer;
 
 public class WorldGenCategory implements DisplayCategory<WorldGenTypeHelper> {
 
@@ -65,9 +73,17 @@ public class WorldGenCategory implements DisplayCategory<WorldGenTypeHelper> {
         widgets.add(Widgets.createRecipeBase(bounds));
 
         List<Component> biomeHover = new ArrayList<>();
-        biomeHover.add(Component.translatable("jeiwg.biomes"));
-        biomeHover.addAll(display.getBiomeInfo().stream().map(Component::literal).toList());
-        widgets.add(Widgets.createLabel(new Point(startingPoint.x + 26, startingPoint.y + 4), Component.literal(display.getBiomeString())).tooltip(biomeHover.toArray(new Component[0])).leftAligned());
+        biomeHover.add(Component.translatable("jeiwg.biomes").withStyle(ChatFormatting.BOLD));
+        biomeHover.addAll(display.getBiomeInfoComponent());
+        widgets.add(Widgets.createLabel(new Point(startingPoint.x + 26, startingPoint.y + 4), Component.literal(display.getBiomeString())).tooltip(biomeHover.toArray(new Component[0])).leftAligned().clickable().onClick(label -> {
+            Minecraft.getInstance().getSoundManager().play(
+                    SimpleSoundInstance.forUI(SoundEvents.UI_BUTTON_CLICK, 1.0f)
+            );
+            Screen currentScreen = Minecraft.getInstance().screen;
+            Minecraft.getInstance().setScreen(
+                    new BiomeListScreen(display.getBiomeStrings(), currentScreen)
+            );
+        }));
 
         widgets.add(Widgets.createDrawableWidget((p1, mouseX, mouseY, p4) -> display.drawTooltip(mouseX, mouseY, startingPoint)));
         widgets.add(Widgets.createDrawableWidget((graphics, p2, p3, p4) -> display.drawInfo(graphics, startingPoint)));
