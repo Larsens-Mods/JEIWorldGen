@@ -6,6 +6,7 @@ import de.larsensmods.jeiworldgen.client.LootData;
 import de.larsensmods.jeiworldgen.client.OreGenData;
 import de.larsensmods.jeiworldgen.client.utils.RenderUtils;
 import de.larsensmods.jeiworldgen.config.ConfigManager;
+import de.larsensmods.jeiworldgen.gui.BiomeListScreen;
 import de.larsensmods.jeiworldgen.mixin.*;
 import de.larsensmods.jeiworldgen.util.CompareUtils;
 import de.larsensmods.jeiworldgen.util.ValueHelpers;
@@ -14,14 +15,19 @@ import dev.emi.emi.api.stack.EmiIngredient;
 import dev.emi.emi.api.stack.EmiStack;
 import dev.emi.emi.api.widget.Bounds;
 import dev.emi.emi.api.widget.WidgetHolder;
+import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.inventory.tooltip.ClientTooltipComponent;
 import net.minecraft.core.registries.Registries;
+import net.minecraft.client.resources.sounds.SimpleSoundInstance;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.network.chat.Style;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.sounds.SoundEvents;
 import net.minecraft.util.FormattedCharSequence;
 import net.minecraft.util.valueproviders.IntProvider;
 import net.minecraft.world.item.ItemStack;
@@ -294,16 +300,23 @@ public class WorldGenTypeHelper extends BasicEmiRecipe {
     }
 
     public String getBiomeString(){
-        return getBiomeInfo().get(0) + (biomes.size() > 1 ? " (+" + (biomes.size() - 1) + ")" : "");
+        return biomes.stream().toList().get(0).toString() + (biomes.size() > 1 ? " (+" + (biomes.size() - 1) + ")" : "");
     }
 
-    public List<String> getBiomeInfo(){
+    public List<ResourceLocation> getBiomeStrings(){
+        return biomes.stream().toList();
+    }
+
+    public List<MutableComponent> getBiomeInfoComponent(){
         List<String> info = biomes.stream().map(ResourceLocation::toString).toList();
+        List<MutableComponent> components;
         if(info.size() > 5){
-            info = new ArrayList<>(info.subList(0, 5));
-            info.add(" + " + (biomes.size() - 5));
+            components = new ArrayList<>(info.subList(0, 5).stream().map(Component::literal).toList());
+            components.add(Component.translatable("jeiwg.biome_tooltip.view_more_biomes", biomes.size() - 5).withStyle(ChatFormatting.GOLD, ChatFormatting.ITALIC));
+        }else{
+            components = info.stream().map(Component::literal).toList();
         }
-        return info;
+        return components;
     }
 
     public String getTag() {
@@ -318,9 +331,19 @@ public class WorldGenTypeHelper extends BasicEmiRecipe {
     public void addWidgets(WidgetHolder widgets) {
         List<Component> biomeHover = new ArrayList<>();
         biomeHover.add(Component.translatable("jeiwg.biomes"));
-        biomeHover.addAll(getBiomeInfo().stream().map(Component::literal).toList());
+        biomeHover.addAll(getBiomeInfoComponent());
         Bounds textBounds = widgets.addText(Component.literal(getBiomeString()), 26, 4, 8, false).getBounds();
         widgets.addTooltipText(biomeHover, textBounds.x(), textBounds.y(), textBounds.width(), textBounds.height());
+
+        widgets.addButton(textBounds.x(), textBounds.y(), textBounds.width(), textBounds.height(), 160, 160, () -> true, (v, v1, i) -> {
+            Minecraft.getInstance().getSoundManager().play(
+                    SimpleSoundInstance.forUI(SoundEvents.UI_BUTTON_CLICK, 1.0f)
+            );
+            Screen currentScreen = Minecraft.getInstance().screen;
+            Minecraft.getInstance().setScreen(
+                    new BiomeListScreen(this.getBiomeStrings(), currentScreen)
+            );
+        });
 
         widgets.addDrawable(COORDS_BASE_X, COORDS_BASE_Y, COORDS_SIZE_X, COORDS_SIZE_Y, this::drawInfo);
         widgets.addTooltip(this::drawTooltip, 0, 0, this.width, this.height);

@@ -1,0 +1,147 @@
+package de.larsensmods.jeiworldgen.gui;
+
+import net.minecraft.ChatFormatting;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.components.Button;
+import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceLocation;
+
+import java.util.*;
+
+public class BiomeListScreen extends Screen {
+
+    private final int paddedLineHeight = this.font != null ? this.font.lineHeight + 6 : Minecraft.getInstance().font.lineHeight + 6;
+
+    private final Screen parent;
+
+    private final Map<String, List<String>> namespaceSplitBiomes = new HashMap<>();
+    private final List<String> biomeNamespaces;
+
+    private boolean closed = false;
+    private Button nextPageButton = null, previousPageButton = null, closeButton = null;
+    private int page = 0;
+    private int pageCount = 0;
+    private int renderLinesPerPage = 0;
+    private List<Component> renderLines;
+
+    public BiomeListScreen(List<ResourceLocation> biomes, Screen parent){
+        super(Component.empty());
+        this.parent = parent;
+
+        for(ResourceLocation biome : biomes){
+            if(!namespaceSplitBiomes.containsKey(biome.getNamespace())){
+                namespaceSplitBiomes.put(biome.getNamespace(), new ArrayList<>());
+            }
+            namespaceSplitBiomes.get(biome.getNamespace()).add(biome.getPath());
+        }
+
+        this.biomeNamespaces = namespaceSplitBiomes.keySet().stream().sorted((first, second) -> {
+            if(first.equals(second)){
+                return 0;
+            }else if(first.equals("minecraft")){
+                return -1;
+            }else if(second.equals("minecraft")){
+                return 1;
+            }
+            return first.compareTo(second);
+        }).toList();
+
+        for(String namespace : this.biomeNamespaces){
+            this.namespaceSplitBiomes.get(namespace).sort(String::compareTo);
+        }
+    }
+
+
+
+    @Override
+    protected void init() {
+        if(this.closed){
+            this.minecraft.setScreen(null);
+            return;
+        }
+        closeButton = Button.builder(Component.translatable("gui.cancel"), btn -> this.onClose()).bounds(this.width / 2 - 60, this.height - 16 - 20, 120, 20).build();
+
+        nextPageButton = Button.builder(Component.literal(">>"), btn -> {
+            page++;
+            if(page + 1 >= pageCount){
+                nextPageButton.active = false;
+            }
+            previousPageButton.active = true;
+        }).bounds(this.width / 2 + 38, 16, 20, 20).build();
+
+        previousPageButton = Button.builder(Component.literal("<<"), btn -> {
+            page--;
+            if(page <= 0){
+                previousPageButton.active = false;
+            }
+            nextPageButton.active = true;
+        }).bounds(this.width / 2 - 58, 16, 20, 20).build();
+
+        previousPageButton.active = false;
+        if(pageCount <= 1){
+            nextPageButton.active = false;
+        }
+
+        this.addRenderableWidget(closeButton);
+        this.addRenderableWidget(nextPageButton);
+        this.addRenderableWidget(previousPageButton);
+    }
+
+    @Override
+    public void render(GuiGraphics graphics, int mouseX, int mouseY, float delta) {
+        super.render(graphics, mouseX, mouseY, delta);
+
+        int guiWidth = graphics.guiWidth();
+        int guiHeight = graphics.guiHeight();
+
+        int biomeTextRenderBaseY = 32 + nextPageButton.getHeight();
+        int biomeTextRenderHeight = guiHeight - 32 - closeButton.getHeight() - biomeTextRenderBaseY;
+
+        recalcRenderLines(biomeTextRenderHeight);
+
+        graphics.drawCenteredString(this.font, "Page " + (page + 1) + "/" + pageCount, guiWidth / 2, 16 + 10 - (this.font.lineHeight / 2), 0xFFFFFFFF);
+        previousPageButton.setPosition(guiWidth / 2 - 58, 16);
+        nextPageButton.setPosition(guiWidth / 2 + 38, 16);
+        closeButton.setPosition(guiWidth / 2 - closeButton.getWidth() / 2, guiHeight - 16 - closeButton.getHeight());
+
+        int entry = 0;
+        for(int i = this.renderLinesPerPage * this.page; i < Math.min(this.renderLinesPerPage * (this.page + 1), this.renderLines.size()); i++){
+            Component line = this.renderLines.get(i);
+            if(line.getStyle().isBold()) {
+                graphics.drawCenteredString(this.font, line, guiWidth / 2, biomeTextRenderBaseY + entry * this.paddedLineHeight, 0xFFFFFFFF);
+            }else{
+                graphics.drawString(this.font, Component.literal("-").append(line), guiWidth / 2 - 48, biomeTextRenderBaseY + entry * this.paddedLineHeight, 0xFFFFFFFF);
+            }
+            entry++;
+        }
+    }
+
+    private void recalcRenderLines(int renderAreaHeight){
+        this.renderLinesPerPage = renderAreaHeight / this.paddedLineHeight;
+
+        List<Component> newRenderComponents = new ArrayList<>();
+        for(String namespace : biomeNamespaces){
+            newRenderComponents.add(Component.literal(namespace + ":").withStyle(ChatFormatting.BOLD));
+            for(String biome : namespaceSplitBiomes.get(namespace)){
+                newRenderComponents.add(Component.literal(namespace + ":" + biome));
+            }
+        }
+        this.renderLines = newRenderComponents;
+        this.pageCount = (int) Math.ceil(((double) newRenderComponents.size()) / ((double) this.renderLinesPerPage));
+
+        if(this.page >= this.pageCount){
+            this.page = this.pageCount - 1;
+        }
+
+        this.previousPageButton.active = this.page > 0;
+        this.nextPageButton.active = this.page < this.pageCount - 1;
+    }
+
+    @Override
+    public void onClose() {
+        this.closed = true;
+        this.minecraft.setScreen(this.parent);
+    }
+}
