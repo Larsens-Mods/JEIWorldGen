@@ -5,6 +5,7 @@ import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
+import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
@@ -22,6 +23,9 @@ public class BiomeListScreen extends Screen {
 
     private boolean closed = false;
     private Button nextPageButton = null, previousPageButton = null, closeButton = null;
+    private EditBox searchBox = null;
+
+    private String searchTerm = "";
     private int page = 0;
     private int pageCount = 0;
     private int renderLinesPerPage = 0;
@@ -54,8 +58,6 @@ public class BiomeListScreen extends Screen {
         }
     }
 
-
-
     @Override
     protected void init() {
         if(this.closed){
@@ -85,9 +87,13 @@ public class BiomeListScreen extends Screen {
             nextPageButton.active = false;
         }
 
+        searchBox = new EditBox(this.font, this.width / 2 - 58, 40, 116, 20, Component.translatable("jeiwg.biome_search"));
+        searchBox.setResponder(newText -> this.searchTerm = newText);
+
         this.addRenderableWidget(closeButton);
         this.addRenderableWidget(nextPageButton);
         this.addRenderableWidget(previousPageButton);
+        this.addRenderableWidget(searchBox);
     }
 
     @Override
@@ -97,7 +103,7 @@ public class BiomeListScreen extends Screen {
         int guiWidth = graphics.guiWidth();
         int guiHeight = graphics.guiHeight();
 
-        int biomeTextRenderBaseY = 32 + nextPageButton.getHeight();
+        int biomeTextRenderBaseY = 32 + nextPageButton.getHeight() + searchBox.getHeight() + 4;
         int biomeTextRenderHeight = guiHeight - 32 - closeButton.getHeight() - biomeTextRenderBaseY;
 
         recalcRenderLines(biomeTextRenderHeight);
@@ -105,10 +111,14 @@ public class BiomeListScreen extends Screen {
         graphics.drawCenteredString(this.font, "Page " + (page + 1) + "/" + pageCount, guiWidth / 2, 16 + 10 - (this.font.lineHeight / 2), 0xFFFFFFFF);
         previousPageButton.setPosition(guiWidth / 2 - 58, 16);
         nextPageButton.setPosition(guiWidth / 2 + 38, 16);
+        searchBox.setPosition(guiWidth / 2 -58, 40);
         closeButton.setPosition(guiWidth / 2 - closeButton.getWidth() / 2, guiHeight - 16 - closeButton.getHeight());
 
+        int startLine = Math.max(this.renderLinesPerPage * this.page, 0);
+        int endLine = Math.clamp((long) this.renderLinesPerPage * (this.page + 1), startLine, this.renderLines.size());
+
         int entry = 0;
-        for(int i = this.renderLinesPerPage * this.page; i < Math.min(this.renderLinesPerPage * (this.page + 1), this.renderLines.size()); i++){
+        for(int i = startLine; i < endLine; i++){
             Component line = this.renderLines.get(i);
             if(line.getStyle().isBold()) {
                 graphics.drawCenteredString(this.font, line, guiWidth / 2, biomeTextRenderBaseY + entry * this.paddedLineHeight, 0xFFFFFFFF);
@@ -122,11 +132,30 @@ public class BiomeListScreen extends Screen {
     private void recalcRenderLines(int renderAreaHeight){
         this.renderLinesPerPage = renderAreaHeight / this.paddedLineHeight;
 
+        String[] searchTerms = searchTerm.split(" ");
+        String namespaceFilter = null;
+        StringBuilder biomeFilterBuilder = new StringBuilder();
+        for(String term : searchTerms){
+            if(term.startsWith("@")){
+                namespaceFilter = term.toLowerCase().substring(1);
+            }else{
+                biomeFilterBuilder.append(" ").append(term);
+            }
+        }
+        String biomeFilter = biomeFilterBuilder.isEmpty() ? "" : biomeFilterBuilder.substring(1).toLowerCase();
+
         List<Component> newRenderComponents = new ArrayList<>();
         for(String namespace : biomeNamespaces){
-            newRenderComponents.add(Component.literal(namespace + ":").withStyle(ChatFormatting.BOLD));
+            if(namespaceFilter != null && !namespace.toLowerCase().contains(namespaceFilter)) continue;
+            List<Component> biomeComps = new ArrayList<>();
             for(String biome : namespaceSplitBiomes.get(namespace)){
-                newRenderComponents.add(Component.literal(namespace + ":" + biome));
+                if(biome.toLowerCase().contains(biomeFilter)) {
+                    biomeComps.add(Component.literal(namespace + ":" + biome));
+                }
+            }
+            if(!biomeComps.isEmpty()) {
+                newRenderComponents.add(Component.literal(namespace + ":").withStyle(ChatFormatting.BOLD));
+                newRenderComponents.addAll(biomeComps);
             }
         }
         this.renderLines = newRenderComponents;
@@ -135,6 +164,7 @@ public class BiomeListScreen extends Screen {
         if(this.page >= this.pageCount){
             this.page = this.pageCount - 1;
         }
+        if(this.pageCount > 0 && this.page < 0) this.page = 0;
 
         this.previousPageButton.active = this.page > 0;
         this.nextPageButton.active = this.page < this.pageCount - 1;

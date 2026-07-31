@@ -2,6 +2,7 @@
   "emi.category.jeiworldgen.world_generation": "World Generation",
   "jeiwg.title": "World Generation",
   "jeiwg.biomes": "Biomes:",
+  "jeiwg.biome_search": "Search Biomes",
   "jeiwg.no_data": "JEI WorldGen was unable to load world gen data. If you are playing on a server, this is likely because the server does not have JEI WorldGen installed. Install JEI WorldGen on the server or join a singleplayer world first to lookup world gen data.",
 
   "jeiwg.biome_tooltip.view_more_biomes": " + %s (Click for full list)",
