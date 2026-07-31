@@ -114,7 +114,7 @@ public class BiomeListScreen extends Screen {
         closeButton.setPosition(guiWidth / 2 - closeButton.getWidth() / 2, guiHeight - 16 - closeButton.getHeight());
 
         int startLine = Math.max(this.renderLinesPerPage * this.page, 0);
-        int endLine = Math.clamp((long) this.renderLinesPerPage * (this.page + 1), startLine, this.renderLines.size());
+        int endLine = Math.min(Math.max(this.renderLinesPerPage * (this.page + 1), startLine), this.renderLines.size());
 
         int entry = 0;
         for(int i = startLine; i < endLine; i++){
