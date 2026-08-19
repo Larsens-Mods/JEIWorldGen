@@ -24,12 +24,12 @@ public final class JEIWorldGenModFabricClient implements ClientModInitializer {
         // This entrypoint is suitable for setting up client-specific logic, such as rendering.
         ClientLoginNetworking.registerGlobalReceiver(Channels.BIOME_DATA_SYNC, (client, handler, buf, listenerAdder) -> {
             JEIWorldGenMod.LOGGER.info("Received data sync packet");
-            ClientDataStore.WG_INFO = WorldGenInfo.decode(buf);
+            ClientDataStore.storeWorldGenInfo(WorldGenInfo.decode(buf));
             return CompletableFuture.completedFuture(PacketByteBufs.empty());
         });
         ClientLoginNetworking.registerGlobalReceiver(Channels.LOOT_DATA_SYNC, (client, handler, buf, callbacksConsumer) -> {
             JEIWorldGenMod.LOGGER.info("Received loot sync packet");
-            ClientDataStore.LOOT_INFO = LootInfo.decode(buf);
+            ClientDataStore.storeLootInfo(LootInfo.decode(buf));
             return CompletableFuture.completedFuture(PacketByteBufs.empty());
         });
 

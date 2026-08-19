@@ -38,13 +38,13 @@ public class ServerNetworkHandler implements INetworkHandler {
 
     private void handleWorldGenMessage(WorldGenInfo message, Supplier<NetworkEvent.Context> ctx){
         JEIWorldGenMod.LOGGER.info("Received data sync packet");
-        ClientDataStore.WG_INFO = message;
+        ClientDataStore.storeWorldGenInfo(message);
         ctx.get().setPacketHandled(true);
     }
 
     private void handleLootMessage(LootInfo message, Supplier<NetworkEvent.Context> ctx){
         JEIWorldGenMod.LOGGER.info("Received loot sync packet");
-        ClientDataStore.LOOT_INFO = message;
+        ClientDataStore.storeLootInfo(message);
         ctx.get().setPacketHandled(true);
     }
 
