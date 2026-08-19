@@ -63,7 +63,7 @@ public final class JEIWorldGenModForge {
                     WorldGenInfoPayload.STREAM_CODEC,
                     (payload, context) -> {
                         JEIWorldGenMod.LOGGER.info("Received data sync packet");
-                        ClientDataStore.WG_INFO = payload.info();
+                        ClientDataStore.storeWorldGenInfo(payload.info());
                     }
             );
             registrar.configurationToClient(
@@ -71,7 +71,7 @@ public final class JEIWorldGenModForge {
                     LootInfoPayload.STREAM_CODEC,
                     (payload, context) -> {
                         JEIWorldGenMod.LOGGER.info("Received loot sync packet");
-                        ClientDataStore.LOOT_INFO = payload.info();
+                        ClientDataStore.storeLootInfo(payload.info());
                     }
             );
         }
