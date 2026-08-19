@@ -1,7 +1,9 @@
 package de.larsensmods.jeiworldgen;
 
+import de.larsensmods.jeiworldgen.cache.DataCache;
 import de.larsensmods.jeiworldgen.client.LootData;
 import de.larsensmods.jeiworldgen.compat.ICompatModule;
+import de.larsensmods.jeiworldgen.config.ConfigManager;
 import de.larsensmods.jeiworldgen.mixin.*;
 import de.larsensmods.jeiworldgen.networking.INetworkHandler;
 import de.larsensmods.jeiworldgen.networking.LootInfo;
@@ -33,6 +35,10 @@ public final class JEIWorldGenMod {
     public static void init(INetworkHandler netHandler, Set<ICompatModule> compatibilityModules) {
         networkHandler = netHandler;
         compatModules = compatibilityModules;
+
+        if(ConfigManager.getConfig().cacheLastDataset()){
+            DataCache.loadIfAvailable();
+        }
     }
 
     public static void buildBiomeData(Registry<Biome> biomeRegistry, MinecraftServer minecraftServer) {
