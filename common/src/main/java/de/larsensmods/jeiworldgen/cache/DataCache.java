@@ -43,7 +43,7 @@ public class DataCache {
                 FriendlyByteBuf buf = new FriendlyByteBuf(Unpooled.copiedBuffer(bytes));
                 ClientDataStore.WG_INFO = WorldGenInfo.decode(buf);
                 JEIWorldGenMod.LOGGER.info("Read trades data from cache file.");
-            }catch (IOException e){
+            }catch (Exception e){
                 JEIWorldGenMod.LOGGER.error("Unable to read from existing cache file.", e);
             }
         }
@@ -53,7 +53,7 @@ public class DataCache {
                 FriendlyByteBuf buf = new FriendlyByteBuf(Unpooled.copiedBuffer(bytes));
                 ClientDataStore.LOOT_INFO = LootInfo.decode(buf);
                 JEIWorldGenMod.LOGGER.info("Read bartering data from cache file.");
-            }catch (IOException e){
+            }catch (Exception e){
                 JEIWorldGenMod.LOGGER.error("Unable to read from existing cache file.", e);
             }
         }
