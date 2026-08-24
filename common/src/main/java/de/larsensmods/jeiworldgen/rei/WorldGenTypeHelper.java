@@ -112,6 +112,8 @@ public class WorldGenTypeHelper implements Display {
                 int chance = ((RarityFilterAccessor) oreData.getRarityFilter()).jeiwg$chance();
                 multiplier = 1f / chance;
             }
+            entry.spawnAttempts = Math.round(multiplier);
+            entry.maxBlobSize = oreData.getSize();
 
             HeightProvider heightProvider = ((HeightRangePlacementAccessor) oreData.getHeightRangePlacement()).jeiwg$height();
             if(heightProvider.getType().equals(HeightProviderType.CONSTANT)){
@@ -120,6 +122,8 @@ public class WorldGenTypeHelper implements Display {
                     int height = Integer.parseInt(aHeight.toString().split(" ")[0]);
                     int amount = (int) Math.ceil(oreData.getSize() * multiplier);
                     entry.addDistributionCornerPoint(height, amount);
+                    entry.minSpawnY = height;
+                    entry.maxSpawnY = height;
                 }catch (NumberFormatException ignored){}
 
                 JEIWorldGenMod.LOGGER.info("Has CONSTANT");
@@ -134,6 +138,8 @@ public class WorldGenTypeHelper implements Display {
 
                 entry.addDistributionCornerPoint(minHeight, amount);
                 entry.addDistributionCornerPoint(maxHeight, amount);
+                entry.minSpawnY = minHeight;
+                entry.maxSpawnY = maxHeight;
             }else if(heightProvider.getType().equals(HeightProviderType.BIASED_TO_BOTTOM)){
                 BiasedToBottomHeight aHeight = (BiasedToBottomHeight) heightProvider;
 
@@ -165,6 +171,8 @@ public class WorldGenTypeHelper implements Display {
                     entry.addDistributionCornerPoint(minHeight + (height / 2) + (plateau / 2), amount);
                     entry.addDistributionCornerPoint(maxHeight, 0);
                 }
+                entry.minSpawnY = minHeight;
+                entry.maxSpawnY = maxHeight;
             }else if(heightProvider.getType().equals(HeightProviderType.WEIGHTED_LIST)){
                 WeightedListHeight aHeight = (WeightedListHeight) heightProvider;
 
@@ -219,6 +227,8 @@ public class WorldGenTypeHelper implements Display {
 
     protected final Set<int[]> distributionDrawParams = new HashSet<>();
 
+    public int maxBlobSize = 0, spawnAttempts = 0, minSpawnY = 0, maxSpawnY = 0;
+
     public WorldGenTypeHelper(Set<Identifier> biomes, Set<ItemStackTemplate> blocks){
         this.biomes = biomes;
         this.blocks = blocks;
@@ -250,6 +260,14 @@ public class WorldGenTypeHelper implements Display {
 
     public boolean metaEquals(WorldGenTypeHelper other){
         return CompareUtils.areItemStackTemplateSetsEqual(this.blocks, other.blocks) && CompareUtils.areIdentifierSetsEqual(this.biomes, other.biomes);
+    }
+
+    public int getSpawnAttemptsAt(int y){
+        return y >= minSpawnY && y <= maxSpawnY ? spawnAttempts : 0;
+    }
+
+    public int getMaxBlobSizeAt(int y){
+        return y >= minSpawnY && y <= maxSpawnY ? maxBlobSize : 0;
     }
 
     @Override
@@ -360,7 +378,11 @@ public class WorldGenTypeHelper implements Display {
             double mouseXFraction = mouseXExact - Math.floor(mouseXExact);
             mouseX += mouseXFraction;
 
-            Tooltip.create(Component.literal("Y: " + getWorldHeight(mouseX - basePoint.x))).queue();
+            int y = getWorldHeight(mouseX - basePoint.x);
+            Tooltip tooltip = Tooltip.create(Component.literal("Y: " + y));
+            if(getSpawnAttemptsAt(y) > 0) tooltip.add(Component.translatable("jeiwg.spawnattempts", getSpawnAttemptsAt(y)));
+            if(getMaxBlobSizeAt(y) > 0) tooltip.add(Component.translatable("jeiwg.maxblobsize", getMaxBlobSizeAt(y)));
+            tooltip.queue();
         }
     }
 
@@ -449,6 +471,24 @@ public class WorldGenTypeHelper implements Display {
         public Merged(Set<Identifier> biomes, Set<ItemStackTemplate> blocks, Set<WorldGenTypeHelper> toMerge) {
             super(biomes, blocks);
             this.underlyingHelpers = toMerge;
+        }
+
+        @Override
+        public int getSpawnAttemptsAt(int y) {
+            int sum = 0;
+            for(WorldGenTypeHelper helper : underlyingHelpers){
+                sum += helper.getSpawnAttemptsAt(y);
+            }
+            return sum;
+        }
+
+        @Override
+        public int getMaxBlobSizeAt(int y) {
+            int maxSize = 0;
+            for(WorldGenTypeHelper helper : underlyingHelpers){
+                maxSize = Math.max(maxSize, helper.getMaxBlobSizeAt(y));
+            }
+            return maxSize;
         }
 
         @Override

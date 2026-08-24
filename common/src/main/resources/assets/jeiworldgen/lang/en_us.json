@@ -6,6 +6,9 @@
 
   "jeiwg.biome_tooltip.view_more_biomes": " + %s (Click for full list)",
 
+  "jeiwg.spawnattempts": "Max spawn attempts: %s",
+  "jeiwg.maxblobsize": "Max blob size: %s",
+
   "jeiwg.loot_info.fortune": "Increased by Fortune",
   "jeiwg.loot_info.silk_touch": "With Silk Touch",
   "jeiwg.loot_info.count": "%s to %s"

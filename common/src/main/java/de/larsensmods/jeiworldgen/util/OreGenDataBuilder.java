@@ -11,6 +11,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.ItemStackTemplate;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.levelgen.feature.ConfiguredFeature;
+import net.minecraft.world.level.levelgen.feature.ScatteredOreFeature;
 import net.minecraft.world.level.levelgen.feature.configurations.FeatureConfiguration;
 import net.minecraft.world.level.levelgen.feature.configurations.OreConfiguration;
 import net.minecraft.world.level.levelgen.placement.*;
@@ -21,6 +22,15 @@ import java.util.Map;
 import java.util.Set;
 
 public class OreGenDataBuilder {
+
+    private static final int[] MAX_BLOCK_TABLE =
+            {0, 0, 0, 4, 5, 8, 9, 10, 10, 13,
+                    16, 17, 23, 24, 24, 29, 32, 37, 46, 52,
+                    52, 60, 68, 68, 74, 82, 94, 104, 106, 120,
+                    128, 135, 149, 160, 180, 190, 204, 212, 228, 246,
+                    262, 276, 292, 308, 324, 344, 360, 381, 403, 429,
+                    452, 480, 500, 530, 558, 584, 616, 634, 664, 694,
+                    730, 760, 790, 826, 864};
 
     public static OreGenData fromRaw(Map<ResourceKey<Biome>, HolderSet<PlacedFeature>> biomeOreFeatures, Map<ResourceKey<Biome>, HolderSet<PlacedFeature>> biomeDecoFeatures, Set<ICompatModule> compatModules, MinecraftServer minecraftServer) {
         OreGenData data = new OreGenData();
@@ -41,6 +51,7 @@ public class OreGenDataBuilder {
                 ConfiguredFeature<?, ?> configured = placed.feature().value();
                 List<PlacementModifier> placement = placed.placement();
                 FeatureConfiguration config = configured.config();
+                boolean isScatter = (placed.feature().value().feature() instanceof ScatteredOreFeature);
                 if(config instanceof OreConfiguration oreConfig){
                     Set<ItemStackTemplate> targets = new HashSet<>();
                     oreConfig.targetStates.forEach(targetState -> targets.add(ItemStackTemplate.fromNonEmptyStack(new ItemStack(targetState.state.getBlock()))));
@@ -48,6 +59,8 @@ public class OreGenDataBuilder {
                     CountPlacement countModifier = null;
                     RarityFilter rarityFilter = null;
                     HeightRangePlacement heightModifier = null;
+
+                    int size = isScatter || oreConfig.size >= MAX_BLOCK_TABLE.length ? oreConfig.size : MAX_BLOCK_TABLE[oreConfig.size];
 
                     for(PlacementModifier modifier : placement){
                         if(modifier.type().equals(PlacementModifierType.COUNT)){
