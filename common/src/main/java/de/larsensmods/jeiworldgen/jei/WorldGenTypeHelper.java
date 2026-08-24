@@ -107,6 +107,8 @@ public class WorldGenTypeHelper implements IRecipeCategoryExtension<WorldGenType
                 int chance = ((RarityFilterAccessor) oreData.getRarityFilter()).jeiwg$chance();
                 multiplier = 1f / chance;
             }
+            entry.spawnAttempts = Math.round(multiplier);
+            entry.maxBlobSize = oreData.getSize();
 
             HeightProvider heightProvider = ((HeightRangePlacementAccessor) oreData.getHeightRangePlacement()).jeiwg$height();
             if(heightProvider.getType().equals(HeightProviderType.CONSTANT)){
@@ -115,6 +117,8 @@ public class WorldGenTypeHelper implements IRecipeCategoryExtension<WorldGenType
                     int height = Integer.parseInt(aHeight.toString().split(" ")[0]);
                     int amount = (int) Math.ceil(oreData.getSize() * multiplier);
                     entry.addDistributionCornerPoint(height, amount);
+                    entry.minSpawnY = height;
+                    entry.maxSpawnY = height;
                 }catch (NumberFormatException ignored){}
 
                 JEIWorldGenMod.LOGGER.info("Has CONSTANT");
@@ -129,6 +133,8 @@ public class WorldGenTypeHelper implements IRecipeCategoryExtension<WorldGenType
 
                 entry.addDistributionCornerPoint(minHeight, amount);
                 entry.addDistributionCornerPoint(maxHeight, amount);
+                entry.minSpawnY = minHeight;
+                entry.maxSpawnY = maxHeight;
             }else if(heightProvider.getType().equals(HeightProviderType.BIASED_TO_BOTTOM)){
                 BiasedToBottomHeight aHeight = (BiasedToBottomHeight) heightProvider;
 
@@ -160,6 +166,8 @@ public class WorldGenTypeHelper implements IRecipeCategoryExtension<WorldGenType
                     entry.addDistributionCornerPoint(minHeight + (height / 2) + (plateau / 2), amount);
                     entry.addDistributionCornerPoint(maxHeight, 0);
                 }
+                entry.minSpawnY = minHeight;
+                entry.maxSpawnY = maxHeight;
             }else if(heightProvider.getType().equals(HeightProviderType.WEIGHTED_LIST)){
                 WeightedListHeight aHeight = (WeightedListHeight) heightProvider;
 
@@ -214,6 +222,8 @@ public class WorldGenTypeHelper implements IRecipeCategoryExtension<WorldGenType
 
     protected final Set<int[]> distributionDrawParams = new HashSet<>();
 
+    public int maxBlobSize = 0, spawnAttempts = 0, minSpawnY = 0, maxSpawnY = 0;
+
     public WorldGenTypeHelper(Set<ResourceLocation> biomes, Set<ItemStack> blocks){
         this.biomes = biomes;
         this.blocks = blocks;
@@ -245,6 +255,14 @@ public class WorldGenTypeHelper implements IRecipeCategoryExtension<WorldGenType
 
     public boolean metaEquals(WorldGenTypeHelper other){
         return CompareUtils.areItemStackSetsEqual(this.blocks, other.blocks) && CompareUtils.areResourceLocationSetsEqual(this.biomes, other.biomes);
+    }
+
+    public int getSpawnAttemptsAt(int y){
+        return y >= minSpawnY && y <= maxSpawnY ? spawnAttempts : 0;
+    }
+
+    public int getMaxBlobSizeAt(int y){
+        return y >= minSpawnY && y <= maxSpawnY ? maxBlobSize : 0;
     }
 
     //GUI STUFF
@@ -294,7 +312,10 @@ public class WorldGenTypeHelper implements IRecipeCategoryExtension<WorldGenType
             double mouseXFraction = mouseXExact - Math.floor(mouseXExact);
             mouseX += mouseXFraction;
 
-            tooltip.add(Component.literal("Y: " + getWorldHeight(mouseX)));
+            int y = getWorldHeight(mouseX);
+            tooltip.add(Component.literal("Y: " + y));
+            if(getSpawnAttemptsAt(y) > 0) tooltip.add(Component.translatable("jeiwg.spawnattempts", getSpawnAttemptsAt(y)));
+            if(getMaxBlobSizeAt(y) > 0) tooltip.add(Component.translatable("jeiwg.maxblobsize", getMaxBlobSizeAt(y)));
         }
 
         if(mouseX >= 39
@@ -391,6 +412,24 @@ public class WorldGenTypeHelper implements IRecipeCategoryExtension<WorldGenType
         public Merged(Set<ResourceLocation> biomes, Set<ItemStack> blocks, Set<WorldGenTypeHelper> toMerge) {
             super(biomes, blocks);
             this.underlyingHelpers = toMerge;
+        }
+
+        @Override
+        public int getSpawnAttemptsAt(int y) {
+            int sum = 0;
+            for(WorldGenTypeHelper helper : underlyingHelpers){
+                sum += helper.getSpawnAttemptsAt(y);
+            }
+            return sum;
+        }
+
+        @Override
+        public int getMaxBlobSizeAt(int y) {
+            int maxSize = 0;
+            for(WorldGenTypeHelper helper : underlyingHelpers){
+                maxSize = Math.max(maxSize, helper.getMaxBlobSizeAt(y));
+            }
+            return maxSize;
         }
 
         @Override
