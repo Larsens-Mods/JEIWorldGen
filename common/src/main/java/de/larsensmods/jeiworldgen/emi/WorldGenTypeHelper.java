@@ -28,6 +28,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.util.FormattedCharSequence;
 import net.minecraft.util.valueproviders.IntProvider;
+import net.minecraft.world.inventory.tooltip.TooltipComponent;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.level.biome.Biomes;
@@ -126,6 +127,8 @@ public class WorldGenTypeHelper extends BasicEmiRecipe {
                 int chance = ((RarityFilterAccessor) oreData.getRarityFilter()).jeiwg$chance();
                 multiplier = 1f / chance;
             }
+            entry.spawnAttempts = Math.round(multiplier);
+            entry.maxBlobSize = oreData.getSize();
 
             HeightProvider heightProvider = ((HeightRangePlacementAccessor) oreData.getHeightRangePlacement()).jeiwg$height();
             if(heightProvider.getType().equals(HeightProviderType.CONSTANT)){
@@ -134,6 +137,8 @@ public class WorldGenTypeHelper extends BasicEmiRecipe {
                     int height = Integer.parseInt(aHeight.toString().split(" ")[0]);
                     int amount = (int) Math.ceil(oreData.getSize() * multiplier);
                     entry.addDistributionCornerPoint(height, amount);
+                    entry.minSpawnY = height;
+                    entry.maxSpawnY = height;
                 }catch (NumberFormatException ignored){}
 
                 JEIWorldGenMod.LOGGER.info("Has CONSTANT");
@@ -148,6 +153,8 @@ public class WorldGenTypeHelper extends BasicEmiRecipe {
 
                 entry.addDistributionCornerPoint(minHeight, amount);
                 entry.addDistributionCornerPoint(maxHeight, amount);
+                entry.minSpawnY = minHeight;
+                entry.maxSpawnY = maxHeight;
             }else if(heightProvider.getType().equals(HeightProviderType.BIASED_TO_BOTTOM)){
                 BiasedToBottomHeight aHeight = (BiasedToBottomHeight) heightProvider;
 
@@ -179,6 +186,8 @@ public class WorldGenTypeHelper extends BasicEmiRecipe {
                     entry.addDistributionCornerPoint(minHeight + (height / 2) + (plateau / 2), amount);
                     entry.addDistributionCornerPoint(maxHeight, 0);
                 }
+                entry.minSpawnY = minHeight;
+                entry.maxSpawnY = maxHeight;
             }else if(heightProvider.getType().equals(HeightProviderType.WEIGHTED_LIST)){
                 WeightedListHeight aHeight = (WeightedListHeight) heightProvider;
 
@@ -282,6 +291,8 @@ public class WorldGenTypeHelper extends BasicEmiRecipe {
 
     protected final Set<int[]> distributionDrawParams = new HashSet<>();
 
+    public int maxBlobSize = 0, spawnAttempts = 0, minSpawnY = 0, maxSpawnY = 0;
+
     public WorldGenTypeHelper(String recipeTag, Set<ResourceLocation> biomes, Set<ItemStack> blocks) {
         super(EMIWGPlugin.WORLD_GEN_CATEGORY, ResourceLocation.fromNamespaceAndPath(JEIWorldGenMod.MOD_ID, "/world_gen_recipe/" + recipeTag.replace("minecraft:", "").replace(':', '/')), 185, 95);
         this.biomes = biomes;
@@ -323,6 +334,14 @@ public class WorldGenTypeHelper extends BasicEmiRecipe {
 
     public boolean metaEquals(WorldGenTypeHelper other){
         return CompareUtils.areItemStackSetsEqual(this.blocks, other.blocks) && CompareUtils.areResourceLocationSetsEqual(this.biomes, other.biomes);
+    }
+
+    public int getSpawnAttemptsAt(int y){
+        return y >= minSpawnY && y <= maxSpawnY ? spawnAttempts : 0;
+    }
+
+    public int getMaxBlobSizeAt(int y){
+        return y >= minSpawnY && y <= maxSpawnY ? maxBlobSize : 0;
     }
 
     @Override
@@ -488,7 +507,12 @@ public class WorldGenTypeHelper extends BasicEmiRecipe {
             double mouseXFraction = mouseXExact - Math.floor(mouseXExact);
             double accurateMouseX = mouseX + mouseXFraction;
 
-            return List.of(ClientTooltipComponent.create(FormattedCharSequence.forward("Y: " + getWorldHeight(accurateMouseX), Style.EMPTY)));
+            int y = getWorldHeight(accurateMouseX);
+            List<ClientTooltipComponent> tooltips = new ArrayList<>();
+            tooltips.add(ClientTooltipComponent.create(FormattedCharSequence.forward("Y: " + y, Style.EMPTY)));
+            if(getSpawnAttemptsAt(y) > 0) tooltips.add(ClientTooltipComponent.create(Component.translatable("jeiwg.spawnattempts", getSpawnAttemptsAt(y)).getVisualOrderText()));
+            if(getMaxBlobSizeAt(y) > 0) tooltips.add(ClientTooltipComponent.create(Component.translatable("jeiwg.maxblobsize", getMaxBlobSizeAt(y)).getVisualOrderText()));
+            return tooltips;
         }else{
             return List.of();
         }
@@ -579,6 +603,24 @@ public class WorldGenTypeHelper extends BasicEmiRecipe {
         public Merged(Set<ResourceLocation> biomes, Set<ItemStack> blocks, Set<WorldGenTypeHelper> toMerge) {
             super(toMerge.stream().toList().getFirst().getTag() + "_merged", biomes, blocks); //TODO: Tag?
             this.underlyingHelpers = toMerge;
+        }
+
+        @Override
+        public int getSpawnAttemptsAt(int y) {
+            int sum = 0;
+            for(WorldGenTypeHelper helper : underlyingHelpers){
+                sum += helper.getSpawnAttemptsAt(y);
+            }
+            return sum;
+        }
+
+        @Override
+        public int getMaxBlobSizeAt(int y) {
+            int maxSize = 0;
+            for(WorldGenTypeHelper helper : underlyingHelpers){
+                maxSize = Math.max(maxSize, helper.getMaxBlobSizeAt(y));
+            }
+            return maxSize;
         }
 
         @Override
