@@ -1,0 +1,16 @@
+{
+  "emi.category.jeiworldgen.world_generation": "世界生成",
+  "jeiwg.title": "世界生成",
+  "jeiwg.biomes": "生態系:",
+  "jeiwg.biome_search": "搜索生態系",
+  "jeiwg.no_data": "JEI WorldGen 無法載入世界生成數據。如果您正於伺服器中遊玩，這可能是因為伺服器沒有安裝 JEI WorldGen。請在伺服器上安裝 JEI WorldGen 或先加入單人世界來查詢世界生成數據。",
+
+  "jeiwg.biome_tooltip.view_more_biomes": " + %s (點擊顯示全部列表)",
+
+  "jeiwg.spawnattempts": "最大嘗試生成次數： %s",
+  "jeiwg.maxblobsize": "最大團簇大小： %s",
+
+  "jeiwg.loot_info.fortune": "隨幸運附魔而增加",
+  "jeiwg.loot_info.silk_touch": "以絲綢之觸附魔破壞獲得",
+  "jeiwg.loot_info.count": "%s 至 %s"
+}
