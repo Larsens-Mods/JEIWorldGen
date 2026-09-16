@@ -10,10 +10,9 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.ItemStackTemplate;
 import net.minecraft.world.level.biome.Biome;
-import net.minecraft.world.level.levelgen.feature.ConfiguredFeature;
+import net.minecraft.world.level.levelgen.feature.AbstractOreFeature;
+import net.minecraft.world.level.levelgen.feature.Feature;
 import net.minecraft.world.level.levelgen.feature.ScatteredOreFeature;
-import net.minecraft.world.level.levelgen.feature.configurations.FeatureConfiguration;
-import net.minecraft.world.level.levelgen.feature.configurations.OreConfiguration;
 import net.minecraft.world.level.levelgen.placement.*;
 
 import java.util.HashSet;
@@ -48,39 +47,38 @@ public class OreGenDataBuilder {
 
             for(Holder<PlacedFeature> placedFeatureHolder : mergedHolderSet){
                 PlacedFeature placed = placedFeatureHolder.value();
-                ConfiguredFeature<?, ?> configured = placed.feature().value();
+                Feature configured = placed.feature().value();
                 List<PlacementModifier> placement = placed.placement();
-                FeatureConfiguration config = configured.config();
-                boolean isScatter = (placed.feature().value().feature() instanceof ScatteredOreFeature);
-                if(config instanceof OreConfiguration oreConfig){
+                boolean isScatter = (configured instanceof ScatteredOreFeature);
+                if(configured instanceof AbstractOreFeature oreFeature){
                     Set<ItemStackTemplate> targets = new HashSet<>();
-                    oreConfig.targetStates.forEach(targetState -> targets.add(ItemStackTemplate.fromNonEmptyStack(new ItemStack(targetState.state.getBlock()))));
+                    oreFeature.targetStates().forEach(targetState -> targets.add(ItemStackTemplate.fromNonEmptyStack(new ItemStack(targetState.state().getBlock()))));
 
                     CountPlacement countModifier = null;
                     RarityFilter rarityFilter = null;
                     HeightRangePlacement heightModifier = null;
 
-                    int size = isScatter || oreConfig.size >= MAX_BLOCK_TABLE.length ? oreConfig.size : MAX_BLOCK_TABLE[oreConfig.size];
+                    int size = isScatter || oreFeature.size() >= MAX_BLOCK_TABLE.length ? oreFeature.size() : MAX_BLOCK_TABLE[oreFeature.size()];
 
                     for(PlacementModifier modifier : placement){
-                        if(modifier.type().equals(PlacementModifierType.COUNT)){
-                            countModifier = (CountPlacement) modifier;
-                        }else if(modifier.type().equals(PlacementModifierType.RARITY_FILTER)){
-                            rarityFilter = (RarityFilter) modifier;
-                        } else if(modifier.type().equals(PlacementModifierType.HEIGHT_RANGE)){
-                            heightModifier = (HeightRangePlacement) modifier;
+                        if(modifier instanceof CountPlacement count){
+                            countModifier = count;
+                        }else if(modifier instanceof RarityFilter rarity){
+                            rarityFilter = rarity;
+                        }else if(modifier instanceof HeightRangePlacement height){
+                            heightModifier = height;
                         }
                     }
                     if(countModifier != null && heightModifier != null) {
-                        biomeData.addOreData(new OreGenData.OreData(targets, oreConfig.size, countModifier, heightModifier));
+                        biomeData.addOreData(new OreGenData.OreData(targets, size, countModifier, heightModifier));
                     }else if(rarityFilter != null && heightModifier != null){
-                        biomeData.addOreData(new OreGenData.OreData(targets, oreConfig.size, rarityFilter, heightModifier));
+                        biomeData.addOreData(new OreGenData.OreData(targets, size, rarityFilter, heightModifier));
                     }else if(countModifier == null && rarityFilter == null && heightModifier != null){
-                        biomeData.addOreData(new OreGenData.OreData(targets, oreConfig.size, CountPlacement.of(1), heightModifier));
+                        biomeData.addOreData(new OreGenData.OreData(targets, size, CountPlacement.of(1), heightModifier));
                     }else{
                         JEIWorldGenMod.LOGGER.warn("Missing data for {} in {}", placedFeatureHolder, biome.identifier());
                         for(PlacementModifier mod : placement){
-                            JEIWorldGenMod.LOGGER.info(" - Modifier: {} with type {}", mod, mod.type());
+                            JEIWorldGenMod.LOGGER.info(" - Modifier: {} with type {}", mod, mod.getClass().getTypeName());
                         }
                     }
                 }

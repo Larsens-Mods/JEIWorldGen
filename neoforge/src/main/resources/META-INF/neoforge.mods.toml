@@ -11,7 +11,7 @@ authors = "LarsenR"
 description = '''
 WorldGen Info Pages for JustEnoughItems (JEI)
 '''
-logoFile = "icon.png"
+iconFile = "icon.png"
 displayTest = "NONE"
 
 [[mixins]]
@@ -35,12 +35,5 @@ side = "BOTH"
 modId = "jei"
 type = "optional"
 versionRange = "[${jei_version},)"
-ordering = "NONE"
-side = "CLIENT"
-
-[[dependencies.jeiworldgen]]
-modId = "roughlyenoughitems"
-type = "optional"
-versionRange = "[${rei_version},)"
 ordering = "NONE"
 side = "CLIENT"

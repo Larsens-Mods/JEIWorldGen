@@ -65,9 +65,9 @@ processResources {
             'neoforge_loader_version_range': neoforge_loader_version_range,
             'credits'                      : credits,
             'java_version'                 : java_version,
-            'jei_version'                  : jei_version,
+            'jei_version'                  : jei_version/*,
             'rei_version'                  : rei_version,
-            'architectury_version'         : architectury_version
+            'architectury_version'         : architectury_version*/
     ]
 
     var jsonExpandProps = expandProps.collectEntries {

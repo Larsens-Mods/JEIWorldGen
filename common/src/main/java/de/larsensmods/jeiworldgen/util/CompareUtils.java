@@ -1,9 +1,6 @@
 package de.larsensmods.jeiworldgen.util;
 
 import de.larsensmods.jeiworldgen.JEIWorldGenMod;
-import de.larsensmods.jeiworldgen.mixin.CountPlacementAccessor;
-import de.larsensmods.jeiworldgen.mixin.HeightRangePlacementAccessor;
-import de.larsensmods.jeiworldgen.mixin.RarityFilterAccessor;
 import net.minecraft.resources.Identifier;
 import net.minecraft.util.valueproviders.IntProvider;
 import net.minecraft.world.item.ItemStack;
@@ -77,8 +74,8 @@ public class CompareUtils {
         }else if(a == null || b == null){
             return false;
         }
-        IntProvider aProvider = ((CountPlacementAccessor) a).jeiwg$count();
-        IntProvider bProvider = ((CountPlacementAccessor) b).jeiwg$count();
+        IntProvider aProvider = a.count();
+        IntProvider bProvider = b.count();
         return aProvider.minInclusive() == bProvider.minInclusive() && aProvider.maxInclusive() == bProvider.maxInclusive();
     }
 
@@ -88,7 +85,7 @@ public class CompareUtils {
         }else if(a == null || b == null){
             return false;
         }
-        return ((RarityFilterAccessor) a).jeiwg$chance() == ((RarityFilterAccessor) b).jeiwg$chance();
+        return a.chance() == b.chance();
     }
 
     public static boolean heightPlacementEquals(HeightRangePlacement a, HeightRangePlacement b){
@@ -97,8 +94,8 @@ public class CompareUtils {
         }else if(a == null || b == null){
             return false;
         }
-        HeightProvider aProvider = ((HeightRangePlacementAccessor) a).jeiwg$height();
-        HeightProvider bProvider = ((HeightRangePlacementAccessor) b).jeiwg$height();
+        HeightProvider aProvider = a.height();
+        HeightProvider bProvider = b.height();
         if(aProvider.getType().equals(bProvider.getType())){
             if(aProvider.getType().equals(HeightProviderType.CONSTANT)){
                 ConstantHeight aHeight = (ConstantHeight) aProvider;

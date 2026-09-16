@@ -25,17 +25,17 @@ import net.minecraft.world.level.storage.loot.entries.LootItem;
 import net.minecraft.world.level.storage.loot.entries.LootPoolEntryContainer;
 import net.minecraft.world.level.storage.loot.functions.ApplyBonusCount;
 import net.minecraft.world.level.storage.loot.functions.LootItemFunction;
+import net.minecraft.world.level.storage.loot.functions.SequenceFunction;
 import net.minecraft.world.level.storage.loot.functions.SetItemCountFunction;
+import net.minecraft.world.level.storage.loot.predicates.CompositeLootItemCondition;
 import net.minecraft.world.level.storage.loot.predicates.LootItemCondition;
 import net.minecraft.world.level.storage.loot.predicates.MatchTool;
-import net.minecraft.world.level.storage.loot.providers.number.BinomialDistributionGenerator;
-import net.minecraft.world.level.storage.loot.providers.number.ConstantValue;
-import net.minecraft.world.level.storage.loot.providers.number.NumberProvider;
-import net.minecraft.world.level.storage.loot.providers.number.UniformGenerator;
+import net.minecraft.world.level.storage.loot.providers.number.ints.BinomialDistributionGenerator;
+import net.minecraft.world.level.storage.loot.providers.number.ints.ConstantValue;
+import net.minecraft.world.level.storage.loot.providers.number.ints.ContextIntProvider;
+import net.minecraft.world.level.storage.loot.providers.number.ints.UniformGenerator;
 
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 public class LootDataBuilder {
 
@@ -71,8 +71,35 @@ public class LootDataBuilder {
         for(LootPoolEntryContainer entry : entries){
             if(entry instanceof LootItem lootItem){
                 Holder<Item> itemHolder = ((LootItemAccessor) lootItem).jeiwg$item();
-                List<LootItemCondition> lootConditions = ((LootPoolEntryContainerAccessor) lootItem).jeiwg$conditions();
-                List<LootItemFunction> lootFunctions = ((LootPoolSingletonContainerAccessor) lootItem).jeiwg$functions();
+
+                Optional<Holder<LootItemCondition>> lootConditionHolder = ((LootPoolEntryContainerAccessor) lootItem).jeiwg$condition();
+                Optional<Holder<LootItemFunction>> lootFunctionHolder = ((LootPoolEntryContainerAccessor) lootItem).jeiwg$modifier();
+
+                List<LootItemCondition> lootConditions = List.of();
+                List<LootItemFunction> lootFunctions = List.of();
+
+                if(lootConditionHolder.isPresent()){
+                    lootConditions = new ArrayList<>();
+                    LootItemCondition baseCondition = lootConditionHolder.get().value();
+                    if(baseCondition instanceof CompositeLootItemCondition compositeCondition){
+                        for(Holder<LootItemCondition> holder : ((CompositeLootItemConditionAccessor) compositeCondition).jeiwg$terms()){
+                            lootConditions.add(holder.value());
+                        }
+                    }else{
+                        lootConditions.add(baseCondition);
+                    }
+                }
+                if(lootFunctionHolder.isPresent()){
+                    lootFunctions = new ArrayList<>();
+                    LootItemFunction baseFunction = lootFunctionHolder.get().value();
+                    if(baseFunction instanceof SequenceFunction sequenceFunction){
+                        for(Holder<LootItemFunction> holder : ((SequenceFunctionAccessor) sequenceFunction).jeiwg$functions()){
+                            lootFunctions.add(holder.value());
+                        }
+                    }else{
+                        lootFunctions.add(baseFunction);
+                    }
+                }
 
                 LootData.ItemDropData itemDropData = new LootData.ItemDropData(itemHolder.value());
                 itemDropData.silkTouchOnly = hasSilkTouchCondition(lootConditions);
@@ -116,7 +143,7 @@ public class LootDataBuilder {
     private static int calcMinCount(List<LootItemFunction> functions){
         for(LootItemFunction function : functions){
             if(function instanceof SetItemCountFunction countFunction){
-                NumberProvider provider = ((SetItemCountFunctionAccessor) countFunction).jeiwg$count();
+                ContextIntProvider provider = ((SetItemCountFunctionAccessor) countFunction).jeiwg$count().value();
                 return minFromNumberProvider(provider);
             }
         }
@@ -126,7 +153,7 @@ public class LootDataBuilder {
     private static int calcMaxCount(List<LootItemFunction> functions){
         for(LootItemFunction function : functions){
             if(function instanceof SetItemCountFunction countFunction){
-                NumberProvider provider = ((SetItemCountFunctionAccessor) countFunction).jeiwg$count();
+                ContextIntProvider provider = ((SetItemCountFunctionAccessor) countFunction).jeiwg$count().value();
                 return maxFromNumberProvider(provider);
             }
         }
@@ -144,7 +171,7 @@ public class LootDataBuilder {
         return false;
     }
 
-    private static int minFromNumberProvider(NumberProvider provider){
+    private static int minFromNumberProvider(ContextIntProvider provider){
         switch (provider) {
             case ConstantValue constant -> {
                 return (int) constant.value();
@@ -153,7 +180,7 @@ public class LootDataBuilder {
                 return 0;
             }
             case UniformGenerator uniform -> {
-                return minFromNumberProvider(uniform.min());
+                return minFromNumberProvider(uniform.min().value());
             }
             default -> {
                 JEIWorldGenMod.LOGGER.warn("Found unsupported loot item function number provider type (min): {}", provider.getClass().getName());
@@ -162,16 +189,16 @@ public class LootDataBuilder {
         }
     }
 
-    private static int maxFromNumberProvider(NumberProvider provider){
+    private static int maxFromNumberProvider(ContextIntProvider provider){
         switch (provider) {
             case ConstantValue constant -> {
                 return (int) constant.value();
             }
             case BinomialDistributionGenerator binomial -> {
-                return maxFromNumberProvider(binomial.n());
+                return maxFromNumberProvider(binomial.n().value());
             }
             case UniformGenerator uniform -> {
-                return minFromNumberProvider(uniform.max());
+                return minFromNumberProvider(uniform.max().value());
             }
             default -> {
                 JEIWorldGenMod.LOGGER.warn("Found unsupported loot item function number provider type (max): {}", provider.getClass().getName());

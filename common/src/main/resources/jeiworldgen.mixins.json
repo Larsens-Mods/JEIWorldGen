@@ -8,15 +8,13 @@
   "mixins": [
     "ApplyBonusCountAccessor",
     "CompositeEntryBaseAccessor",
-    "CountPlacementAccessor",
-    "HeightRangePlacementAccessor",
+    "CompositeLootItemConditionAccessor",
     "EnchantmentsPredicateAccessor",
     "LootItemAccessor",
     "LootPoolAccessor",
     "LootPoolEntryContainerAccessor",
-    "LootPoolSingletonContainerAccessor",
     "LootTableAccessor",
-    "RarityFilterAccessor",
+    "SequenceFunctionAccessor",
     "SetItemCountFunctionAccessor",
     "TrapezoidHeightAccessor",
     "UniformHeightAccessor"

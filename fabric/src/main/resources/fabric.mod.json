@@ -37,7 +37,6 @@
     "java": ">=${java_version}"
   },
   "suggests": {
-    "jei": ">=${jei_version}",
-    "roughlyenoughitems": ">=${rei_version}"
+    "jei": ">=${jei_version}"
   }
 }

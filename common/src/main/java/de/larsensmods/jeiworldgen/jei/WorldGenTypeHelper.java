@@ -16,7 +16,6 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
-import net.minecraft.network.chat.TextColor;
 import net.minecraft.resources.Identifier;
 import net.minecraft.util.ARGB;
 import net.minecraft.util.valueproviders.IntProvider;
@@ -103,16 +102,16 @@ public class WorldGenTypeHelper implements IRecipeCategoryExtension<WorldGenType
 
             float multiplier = 1;
             if(oreData.getCountPlacement() != null){
-                IntProvider intProvider = ((CountPlacementAccessor) oreData.getCountPlacement()).jeiwg$count();
+                IntProvider intProvider = oreData.getCountPlacement().count();
                 multiplier = (intProvider.minInclusive() + intProvider.maxInclusive()) / 2f;
             }else if(oreData.getRarityFilter() != null){
-                int chance = ((RarityFilterAccessor) oreData.getRarityFilter()).jeiwg$chance();
+                int chance = oreData.getRarityFilter().chance();
                 multiplier = 1f / chance;
             }
             entry.spawnAttempts = Math.round(multiplier);
             entry.maxBlobSize = oreData.getSize();
 
-            HeightProvider heightProvider = ((HeightRangePlacementAccessor) oreData.getHeightRangePlacement()).jeiwg$height();
+            HeightProvider heightProvider = oreData.getHeightRangePlacement().height();
             if(heightProvider.getType().equals(HeightProviderType.CONSTANT)){
                 ConstantHeight aHeight = (ConstantHeight) heightProvider;
                 try {
