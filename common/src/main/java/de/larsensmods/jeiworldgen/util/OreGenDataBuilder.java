@@ -71,11 +71,11 @@ public class OreGenDataBuilder {
                         }
                     }
                     if(countModifier != null && heightModifier != null) {
-                        biomeData.addOreData(new OreGenData.OreData(targets, oreConfig.size, countModifier, heightModifier));
+                        biomeData.addOreData(new OreGenData.OreData(targets, size, countModifier, heightModifier));
                     }else if(rarityFilter != null && heightModifier != null){
-                        biomeData.addOreData(new OreGenData.OreData(targets, oreConfig.size, rarityFilter, heightModifier));
+                        biomeData.addOreData(new OreGenData.OreData(targets, size, rarityFilter, heightModifier));
                     }else if(countModifier == null && rarityFilter == null && heightModifier != null){
-                        biomeData.addOreData(new OreGenData.OreData(targets, oreConfig.size, CountPlacement.of(1), heightModifier));
+                        biomeData.addOreData(new OreGenData.OreData(targets, size, CountPlacement.of(1), heightModifier));
                     }else{
                         JEIWorldGenMod.LOGGER.warn("Missing data for {} in {}", placedFeatureHolder, biome.location());
                         for(PlacementModifier mod : placement){
